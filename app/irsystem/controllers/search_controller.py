@@ -29,8 +29,11 @@ def search():
 		##query should be of form '2,5,7,2,9' (5 integers separated out by commas) for now
 		output_message = "Your search: " + query
 		flav = re.findall('[0-9]+', query)
-		flavors = np.array([int(x) for x in flav])
-		data = [raw[i]['title'] for i in cos_sim_flavor(flavors)]
+		if len(flav) != 5:
+			data = ["query should be of form e.g. '2,5,7,2,9'"]
+		else:
+			flavors = np.array([int(x) for x in flav])
+			data = [raw[i]['title'] for i in cos_sim_flavor(flavors)]
 	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data)
 
 
