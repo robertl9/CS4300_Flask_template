@@ -1,7 +1,8 @@
-from . import *  
+from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 import json
+import Levenshtein
 
 project_name = "TasteTest"
 net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Stephen Ye: xy93"
@@ -43,3 +44,14 @@ def cos_sim_flavor(flavors):
 	lst = np.dot(flav_mat,flavors)
 	scores = np.divide(lst, flav_norms)
 	return np.ndarray.tolist(np.argsort(-scores))
+
+def edit_distance (ingredient, database_res):
+	return Levenshtein.distance(ingredient.lower(), database_res.lower())
+
+def edit_distance_search (query, ingredients):
+	List = []
+    for i in ingredients:
+        tupl = (edit_distance(query, i["text"]),i)
+        List.append(tupl)
+    sortedList = sorted(List, key=lambda tup: tup[0])
+    return sortedList
