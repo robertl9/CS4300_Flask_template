@@ -59,3 +59,12 @@ def edit_distance_search (query, ingredients):
 		List.append(tupl)
 	sortedList = sorted(List, key=lambda tup: tup[0])
 	return sortedList
+
+#returns list of strings which contain substring. Unoptimized
+def substr_match (query, list_of_words):
+	length = len(query)
+	List = []
+	for i in list_of_words:
+		if i[:length] = query:
+			List.append(i)
+	return List 
