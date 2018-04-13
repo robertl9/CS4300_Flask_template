@@ -22,7 +22,15 @@
   }
 }
 
-.topcorner{
+#title {
+  font-size: 55px;
+  font-family:Helvetica;
+  font-weight: bold;
+  color: #4285F4;
+  margin-bottom: 50px;
+}
+
+.topcorner {
   position: absolute;
   top: 2%;
   right: 2%;
