@@ -27,18 +27,17 @@ def search():
 	salty = request.args.get('salty')
 	sour = request.args.get('sour')
 	bitter = request.args.get('bitter')
-	savory = request.args.get('savory')
+	umami = request.args.get('umami')
 	if not query:
 		data = []
 		output_message = ''
 	else:
-		##query should be of form '2,5,7,2,9' (5 integers separated out by commas) for now
-		output_message = "Your search: " + query
 		# flav = re.findall('[0-9]+', query)
 		# if len(flav) != 5:
 		# 	data = ["query should be of form e.g. '2,5,7,2,9'"]
-		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(savory)])
-		data = [raw[i]['title'] for i in cos_sim_flavor(flavors)]
+		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(umami)])
+		data = [raw[i] for i in cos_sim_flavor(flavors)]
+		output_message = "Your search for \"" + query + "\" returned " + str(len(data)) + " results:"
 	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data)
 
 

@@ -8,7 +8,7 @@
       <p>Project Name: {{ name }}</p>
       <p>Student Name: ({{ netid }})</p>
     </div>
-    <form class="global-search">
+    <form id="inputs">
       <h1 id="title">TasteTest</h1>
       <div class="form-row">
         <input id="input" type="text" name="search" class="form-control" placeholder="Search for ingredients here">
@@ -18,18 +18,31 @@
         <input type="range" class="slider" min="0" max="10" step="1" name="salty">
         <input type="range" class="slider" min="0" max="10" step="1" name="sour">
         <input type="range" class="slider" min="0" max="10" step="1" name="bitter">
-        <input type="range" class="slider" min="0" max="10" step="1" name="savory">
+        <input type="range" class="slider" min="0" max="10" step="1" name="umami">
       </div>
       <button type="submit" class="btn btn-primary">Explore</button>
     </form>
-    <form class="form-inline global-search">
+    <div id="outputs">
     {% if data %}
-      <h1>{{output_message}}</h1>
+      <p>{{output_message}}</p>
       {% for d in data %}  
-        <br>
-        <p>{{d}}</p>
+        <div class="panel panel-info dish-panel">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{d["title"]}}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-4">
+                <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
+              </div>
+              <div class="col-md-8">
+                <div></div>{{d["instructions"]}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       {% endfor %}
     {% endif %}
-    </form>
+    </div>
   </body>
 </html>
