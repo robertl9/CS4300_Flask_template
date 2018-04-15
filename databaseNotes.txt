@@ -1,0 +1,30 @@
+one option is to hold the database in git and then take the data and preprocess it to reduce the size. So consider taking the raw json file and reduce it to a smaller vector that we need and PICKLE it. So you push the smaller data set to heroku and just return the link instead. 
+
+The python app will have access to the database by binding the database address to the flask shell environment. 
+This uses SQLAlchemy to connect it to prosgres services.
+
+class User(db.Model):
+	__tablename__ = "users"
+	id = db.Column(db.Integer, primary_key=True)
+	email = db.Column(db.String(120), unique=True)
+
+	def __init__(self, email):
+		slef.email = email
+
+	def __repr__(self):
+		return '<E-mail %r>' % self.email
+
+at the app folder->irsystem->controllers->search_controllers is where you would want your db code.
+
+step by step
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = osenviron['DATABASE_URL']
+db= SQLAlchemy(app)
+db.create_all()
+
+the database itself lives in __init__.py in the app folder template folder. 
+
+Remember to add it to add-ons for heroku
+also add on config file of template 
+SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
