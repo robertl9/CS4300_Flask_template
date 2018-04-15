@@ -21,12 +21,12 @@
           autocomplete(document.getElementById("search"), {{ingrs|tojson}});
         </script>
       </div>
-      <div class="form-row slider-group">
-        <input type="range" class="slider" min="0" max="10" step="1" name="sweet">
-        <input type="range" class="slider" min="0" max="10" step="1" name="salty">
-        <input type="range" class="slider" min="0" max="10" step="1" name="sour">
-        <input type="range" class="slider" min="0" max="10" step="1" name="bitter">
-        <input type="range" class="slider" min="0" max="10" step="1" name="umami">
+      <div id="slider-group" class="form-row">
+        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="sweet"></div>
+        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="salty"></div>
+        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="sour"></div>
+        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="bitter"></div>
+        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="umami"></div>
       </div>
       <button type="submit" class="btn btn-primary">Explore</button>
     </form>
