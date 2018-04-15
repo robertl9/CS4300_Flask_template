@@ -1,5 +1,9 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
+    <title>TasteTest</title>
+    <script type="text/javascript" src="/static/js/main.js"></script>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/main.css">
   </head>
@@ -8,10 +12,13 @@
       <p>Project Name: {{ name }}</p>
       <p>Student Name: ({{ netid }})</p>
     </div>
-    <form id="inputs">
+    <form id="inputs" autocomplete="off">
       <h1 id="title">TasteTest</h1>
-      <div class="form-row">
-        <input id="input" type="text" name="search" class="form-control" placeholder="Search for ingredients here">
+      <div class="form-row autocomplete">
+        <input type="text" id="search" class="form-control" placeholder="Search for ingredients here" name="search">
+        <script>
+          autocomplete(document.getElementById("search"), ingredients);
+        </script>
       </div>
       <div class="form-row slider-group">
         <input type="range" class="slider" min="0" max="10" step="1" name="sweet">
@@ -23,26 +30,26 @@
       <button type="submit" class="btn btn-primary">Explore</button>
     </form>
     <div id="outputs">
-    {% if data %}
-      <p>{{output_message}}</p>
-      {% for d in data %}  
-        <div class="panel panel-info dish-panel">
-          <div class="panel-heading">
-            <h3 class="panel-title">{{d["title"]}}</h3>
-          </div>
-          <div class="panel-body">
-            <div class="row">
-              <div class="col-md-4">
-                <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
-              </div>
-              <div class="col-md-8">
-                <div></div>{{d["instructions"]}}</div>
+      {% if data %}
+        <p>{{output_message}}</p>
+        {% for d in data %}  
+          <div class="panel panel-info dish-panel">
+            <div class="panel-heading">
+              <h3 class="panel-title">{{d["title"]}}</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
+                </div>
+                <div class="col-md-8">
+                  <div>{{d["instructions"]}}</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-    {% endif %}
+        {% endfor %}
+      {% endif %}
     </div>
   </body>
 </html>
