@@ -1,5 +1,3 @@
-var ingredients = ["baking chocolate","baking soda","brown sugar","butter","chocolate"];
-
 /* reference: https://www.w3schools.com/howto/howto_js_autocomplete.asp */
 function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,

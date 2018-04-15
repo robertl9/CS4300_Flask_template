@@ -66,7 +66,7 @@ def search():
 		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(umami)])
 		data = [raw[i] for i in cos_sim_flavor(flavors, filter_include_ingr(query))]
 		output_message = "Your search for \"" + query + "\" returned " + str(len(data)) + " results:"
-	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data)
+	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data, ingrs=all_ingrs_lst)
 
 
 #precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
