@@ -10,7 +10,8 @@ net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Steven Ye: x
 
 #######populating flavor values
 import re
-from annotated import annotated
+from annotated import annotatedDict
+import units
 
 with open('aggreg.json') as json_data:
 	raw = json.load(json_data)
@@ -28,8 +29,12 @@ for ingr in all_ingrs:
 
 flav_mat = np.zeros((len(raw), 5))
 flav_norms = np.zeros(len(raw))
-ingr_mat = np.zeros((len(raw), len(all_ingrs)))
+ingr_mat = np.ones((len(raw), len(all_ingrs)))
 
+
+#makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
+# flav_norms (vector with the norms of each row of the flav_mat)
+# ingr_mat (recipe x ingredient matrix that has 1 if the recipe *doesn't* contain that ingredient)
 for i in range(len(raw)):
 	flav_prof = np.array([0,0,0,0,0])
 	for j in range(len(raw[i]['extendedIngredients'])):
@@ -37,10 +42,10 @@ for i in range(len(raw)):
 		amount = ingr['amount']
 		unit = ingr['unit'] #need to map them to proportional weights later (e.g. 1 lb = 16 oz)
 		name = ingr['name']
-		if name in annotated:
-			flav_lst = [annotated[name]['sweet'], annotated[name]['salty'],annotated[name]['sour'], annotated[name]['bitter'], annotated[name]['umami']]
-			flav_prof = np.add(flav_prof, amount*np.array(flav_lst))
-		ingr_mat[i,ingr_inv_index[name]] = 1
+		if name in annotatedDict:
+			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
+			flav_prof = np.add(flav_prof, (amount*units.unit_weights(unit))*np.array(flav_lst))
+		ingr_mat[i,ingr_inv_index[name]] = 0
 	if np.max(flav_prof) == 0:
 		flav_prof = np.array([1,1,1,1,1])
 	flav_mat[i,:] = 10*(flav_prof/np.max(flav_prof))
@@ -64,7 +69,7 @@ def search():
 		output_message = ''
 	else:
 		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(umami)])
-		data = [raw[i] for i in cos_sim_flavor(flavors, filter_include_ingr(query))]
+		data = [raw[i] for i in cos_sim_flavor(flavors, filter_exclude_ingr(query))]
 		output_message = "Your search for \"" + query + "\" returned " + str(len(data)) + " results:"
 	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data, ingrs=all_ingrs_lst)
 
@@ -96,8 +101,8 @@ def substr_match (query, list_of_words):
 			List.append(i)
 	return List 
 
-#return flavor matrix that has 0's for recipes that don't include the query ingredient
-def filter_include_ingr(query):
+#return flavor matrix that has 0's for recipes that *do* include the query ingredient
+def filter_exclude_ingr(query):
 	if query in all_ingrs_lst:
 		filtered_flav_mat = np.array(flav_mat.shape)
 		filtered_flav_mat = ingr_mat[:, ingr_inv_index[query]].reshape(len(raw), 1)*flav_mat
