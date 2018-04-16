@@ -10,8 +10,8 @@
   </head>
   <body>
     <div class="topcorner">
-      <p>Project Name: {{ name }}</p>
-      <p>Student Name: ({{ netid }})</p>
+      <!-- <p>Project Name: {{ name }}</p>
+      <p>Student Name: ({{ netid }})</p> -->
     </div>
     <form id="inputs" autocomplete="off">
       <h1 id="title">TasteTest</h1>
@@ -46,9 +46,10 @@
             <div class="panel-body" style="display:none">
               <div class="row">
                 <div class="col-md-4">
-                  <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
+                  <a href={{d["sourceUrl"]}} target="_blank">
+                    <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
+                  </a>
                   <div class="dish-rating">{{d["rating"]}}</div>
-                  <div class="dish-url">{{d["sourceUrl"]}}</div>
                 </div>
                 <div class="col-md-8">
                   <ul class="list-group">
