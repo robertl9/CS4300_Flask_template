@@ -95,3 +95,9 @@ function autocomplete(inp, arr) {
       closeAllLists(e.target);
   });
 }
+
+$(document).ready(function() {
+  $(".dish-panel").on("click", function() {
+    $(this).find(".panel-body").toggle(300);
+  });
+});

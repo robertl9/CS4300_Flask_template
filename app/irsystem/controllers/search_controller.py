@@ -60,17 +60,18 @@ for i in range(len(raw)):
 @irsystem.route('/', methods=['GET'])
 def search():
 	query = request.args.get('search')
-	sweet = request.args.get('sweet')
-	salty = request.args.get('salty')
-	sour = request.args.get('sour')
-	bitter = request.args.get('bitter')
-	umami = request.args.get('umami')
+	include = bool(request.args.get('include'))
+	sweet = int(request.args.get('sweet'))
+	salty = int(request.args.get('salty'))
+	sour = int(request.args.get('sour'))
+	bitter = int(request.args.get('bitter'))
+	umami = int(request.args.get('umami'))
 	if not query:
 		data = []
 		output_message = ''
 	else:
-		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(umami)])
-		data = [add_rating(raw[i]) for i in cos_sim_flavor(flavors, filter_exclude_ingr(query))[:100]] # first hundred results (temporary)
+		flavors = np.array([sweet, salty, sour, bitter, umami])
+		data = [raw[i] for i in cos_sim_flavor(flavors, filter_exclude_ingr(query))[:100]] # first hundred results (temporary)
 		output_message = "Your search for \"" + query + "\" returned " + str(len(data)) + " results:"
 	return render_template('search.html', name=project_name, 
 		                                  netid=net_ids, 
