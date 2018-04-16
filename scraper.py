@@ -10,9 +10,9 @@ def parser(web_page):
     first_index = web_page.find('.')
     second_index = web_page.find('.',first_index+1)
     web = web_page[first_index+1:second_index]
-    if (web == "allrecipes"):
+    if web == "allrecipes":
         return review_parser_allrecipes(web_page)
-    else if (web =="foodnetwork"):
+    elif web =="foodnetwork":
         return review_parser_foodnetwork(web_page)
     else:
         return -1 #probably just return the spoontacular score
@@ -21,17 +21,23 @@ def parser(web_page):
 def review_parser_allrecipes(web_page): #returns the star_rating out of five as a float for the site all recipes
     page = urllib2.urlopen(web_page)
     formatted = BeautifulSoup(page, 'html.parser')
-    rating_box = soup.find('div', attrs={'class':'rating-stars'})
+    rating_box = formatted.find('div', attrs={'class':'rating-stars'})
     rating = rating_box.get('data-ratingstars')
-    return float(rating)
+    try:
+        return float(rating)
+    except ValueError:
+        return -1
 
 
 def review_parser_foodnetwork(web_page): #returns star_rating for foodnetwork
     page = urllib2.urlopen(web_page)
     formatted = BeautifulSoup(page, 'html.parser')
-    rating_box = soup.find('span',attrs={'class':'gig-rating-stars'})
+    rating_box = formatted.find('span',attrs={'class':'gig-rating-stars'})
     rating = rating_box.get('title')
-    return float(rating.split()[0])
+    try:
+        return float(rating.split()[0])
+    except ValueError:
+        return -1
     
     
     

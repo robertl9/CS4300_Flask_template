@@ -1,6 +1,7 @@
 from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
+from scraper import *
 import json
 import Levenshtein
 
@@ -64,9 +65,13 @@ def search():
 		output_message = ''
 	else:
 		flavors = np.array([int(sweet), int(salty), int(sour), int(bitter), int(umami)])
-		data = [raw[i] for i in cos_sim_flavor(flavors, filter_include_ingr(query))]
+		data = [add_rating(raw[i]) for i in cos_sim_flavor(flavors, filter_include_ingr(query))[:100]] # first hundred results (temporary)
 		output_message = "Your search for \"" + query + "\" returned " + str(len(data)) + " results:"
-	return render_template('search.html', name=project_name, netid=net_ids, output_message=output_message, data=data, ingrs=all_ingrs_lst)
+	return render_template('search.html', name=project_name, 
+		                                  netid=net_ids, 
+		                                  output_message=output_message, 
+		                                  data=data, 
+		                                  ingrs=all_ingrs_lst)
 
 
 #precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
@@ -105,7 +110,10 @@ def filter_include_ingr(query):
 	else:
 		return flav_mat
 
-
+#return dish with new field rating containing social feedback scrapped from source url
+def add_rating(dish):
+	dish["rating"] = parser(dish["sourceUrl"])
+	return dish
 
 
 
