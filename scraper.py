@@ -1,10 +1,6 @@
-
-import urllib2
+import requests
+import json
 from bs4 import BeautifulSoup
-
-#Given the recipe website, denote this of type query
-#For example... 
-query = 'https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/?internalSource=previously%20viewed&referringContentType=home%20page&clickId=cardslot%202'
 
 def parser(web_page):
     first_index = web_page.find('.')
@@ -19,8 +15,8 @@ def parser(web_page):
     
 
 def review_parser_allrecipes(web_page): #returns the star_rating out of five as a float for the site all recipes
-    page = urllib2.urlopen(web_page)
-    formatted = BeautifulSoup(page, 'html.parser')
+    page = requests.get(web_page)
+    formatted = BeautifulSoup(page.content, 'html.parser')
     rating_box = formatted.find('div', attrs={'class':'rating-stars'})
     rating = rating_box.get('data-ratingstars')
     try:
@@ -30,15 +26,15 @@ def review_parser_allrecipes(web_page): #returns the star_rating out of five as 
 
 
 def review_parser_foodnetwork(web_page): #returns star_rating for foodnetwork
-    page = urllib2.urlopen(web_page)
-    formatted = BeautifulSoup(page, 'html.parser')
-    rating_box = formatted.find('span',attrs={'class':'gig-rating-stars'})
-    rating = rating_box.get('title')
+    page = requests.get(web_page)
+    formatted = BeautifulSoup(page.content, 'html.parser')
+    rating_box = formatted.find('script',attrs={'type':'application/ld+json'})
+    rating = json.loads(rating_box.text)
     try:
-        return float(rating.split()[0])
+        return rating["aggregateRating"]["ratingValue"]
     except ValueError:
-        return -1
-    
+        return -10
+
     
     
     
