@@ -9,12 +9,8 @@
     <link rel="stylesheet" href="/static/css/main.css">
   </head>
   <body>
-    <div class="topcorner">
-      <!-- <p>Project Name: {{ name }}</p>
-      <p>Student Name: ({{ netid }})</p> -->
-    </div>
     <form id="inputs" autocomplete="off">
-      <h1 id="title">TasteTest</h1>
+      <h1 id="title">{{name}}</h1>
       <div class="form-row autocomplete">
         <div class="input-group">
           <span class="input-group-addon" id="sizing-addon2">
@@ -49,7 +45,7 @@
                   <a href={{d["sourceUrl"]}} target="_blank">
                     <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
                   </a>
-                  <div class="dish-rating">{{d["rating"]}}</div>
+                  <div class="dish-rating">{{d["spoonacularScore"]}}</div>
                 </div>
                 <div class="col-md-8">
                   <ul class="list-group">
@@ -69,5 +65,9 @@
         {% endfor %}
       {% endif %}
     </div>
+    <footer>
+      <p>Project Name: {{name}}</p>
+      <p>Created by: {{netid}}</p>
+    </footer>
   </body>
 </html>
