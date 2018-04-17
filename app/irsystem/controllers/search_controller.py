@@ -3,7 +3,7 @@ from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 from scraper import *
 import json
-import Levenshtein
+#import Levenshtein
 
 project_name = "TasteTest"
 net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Steven Ye: xy93"
@@ -53,7 +53,7 @@ for i in range(len(raw)):
 	flav_norms[i] = np.linalg.norm(flav_mat[i])
 
 
-		
+
 
 #######
 
@@ -73,10 +73,10 @@ def search():
 		flavors = np.array([sweet, salty, sour, bitter, umami])
 		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, include))[:100]] # first hundred results (temporary)
 		output_message = "Your search returned " + str(len(data)) + " results:"
-	return render_template('search.html', name=project_name, 
-		                                  netid=net_ids, 
-		                                  output_message=output_message, 
-		                                  data=data, 
+	return render_template('search.html', name=project_name,
+		                                  netid=net_ids,
+		                                  output_message=output_message,
+		                                  data=data,
 		                                  ingrs=all_ingrs_lst)
 
 
@@ -87,16 +87,16 @@ def cos_sim_flavor(flavors, mat):
 	scores = np.divide(lst, flav_norms)
 	return np.ndarray.tolist(np.argsort(-scores))
 
-def edit_distance (ingredient, database_res):
-	return Levenshtein.distance(ingredient.lower(), database_res.lower())
+#def edit_distance (ingredient, database_res):
+#	return Levenshtein.distance(ingredient.lower(), database_res.lower())
 
-def edit_distance_search (query, ingredients):
-	List = []
-	for i in ingredients:
-		tupl = (edit_distance(query, i["text"]),i)
-		List.append(tupl)
-	sortedList = sorted(List, key=lambda tup: tup[0])
-	return sortedList
+#def edit_distance_search (query, ingredients):
+#	List = []
+#	for i in ingredients:
+#		tupl = (edit_distance(query, i["text"]),i)
+#		List.append(tupl)
+#	sortedList = sorted(List, key=lambda tup: tup[0])
+#	return sortedList
 
 #returns list of strings which contain substring. Unoptimized
 def substr_match (query, list_of_words):
@@ -105,7 +105,7 @@ def substr_match (query, list_of_words):
 	for i in list_of_words:
 		if i[:length] == query:
 			List.append(i)
-	return List 
+	return List
 
 #return flavor matrix that has 0's for recipes that include (if incl) or exclude (if not incl) the query ingredient
 def filter_clude_ingr(query, incl):
@@ -123,10 +123,3 @@ def filter_clude_ingr(query, incl):
 def add_rating(dish):
 	dish["rating"] = parser(dish["sourceUrl"])
 	return dish
-
-
-
-
-
-
-
