@@ -60,15 +60,16 @@ for i in range(len(raw)):
 @irsystem.route('/', methods=['GET'])
 def search():
 	try:
+		print(request.args)
 		query = request.args.get('search')
-		include = bool(request.args.get('include'))
+		#include = bool(request.args.get('include'))
 		sweet = int(request.args.get('sweet'))
 		salty = int(request.args.get('salty'))
 		sour = int(request.args.get('sour'))
 		bitter = int(request.args.get('bitter'))
 		umami = int(request.args.get('umami'))
 		flavors = np.array([sweet, salty, sour, bitter, umami])
-		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, include))[:100]] # first hundred results (temporary)
+		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query))]#[:100]] # first hundred results (temporary)
 		output_message = "Your search returned " + str(len(data)) + " results:"
 	except TypeError:
 		data = []
@@ -85,7 +86,8 @@ def search():
 def cos_sim_flavor(flavors, mat):
 	lst = np.dot(mat,flavors)
 	scores = np.divide(lst, flav_norms)
-	return np.ndarray.tolist(np.argsort(-scores))
+	first_zero_elt = np.count_nonzero(scores)
+	return np.ndarray.tolist(np.argsort(-scores))[:first_zero_elt]
 
 #def edit_distance (ingredient, database_res):
 #	return Levenshtein.distance(ingredient.lower(), database_res.lower())
@@ -108,16 +110,18 @@ def substr_match (query, list_of_words):
 	return List
 
 #return flavor matrix that has 0's for recipes that include (if incl) or exclude (if not incl) the query ingredient
-def filter_clude_ingr(query, incl):
-	if query in all_ingrs_lst:
-		filtered_flav_mat = np.array(flav_mat.shape)
-		filter_vec = ingr_mat[:, ingr_inv_index[query]].reshape(len(raw), 1)
-		if not incl:
-			filter_vec = np.ones((len(raw), 1))- ingr_mat[:, ingr_inv_index[query]].reshape(len(raw), 1)
-		filtered_flav_mat = filter_vec*flav_mat
-		return filtered_flav_mat
-	else:
-		return flav_mat
+def filter_clude_ingr(query):
+	ingrs_list = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
+	filtered_flav_mat = np.copy(flav_mat)
+	for (q, incl) in ingrs_list:
+		if q in all_ingrs_lst:
+			filter_vec = ingr_mat[:, ingr_inv_index[q]].reshape(len(raw), 1)
+			if not incl:
+				filter_vec = np.ones((len(raw), 1))- ingr_mat[:, ingr_inv_index[q]].reshape(len(raw), 1)
+			filtered_flav_mat = filter_vec*filtered_flav_mat
+	
+	return filtered_flav_mat
+
 
 #return dish with new field rating containing social feedback scrapped from source url
 def add_rating(dish):
