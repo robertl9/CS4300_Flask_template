@@ -82,6 +82,7 @@ def search():
 		output_message = "Your search returned " + str(len(data)) + " results:"
 	except TypeError:
 		data = []
+		query = []
 		output_message = ''
 		sweet = salty = sour = bitter = umami = 0
 	return render_template('search.html', name=project_name,
