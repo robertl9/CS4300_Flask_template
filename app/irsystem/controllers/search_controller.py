@@ -2,6 +2,12 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 from scraper import *
+
+from nltk.stem import PorterStemmer
+import re
+stemmer=PorterStemmer()
+
+
 import json
 #import Levenshtein
 
@@ -74,10 +80,10 @@ def search():
 	except TypeError:
 		data = []
 		output_message = ''
-	return render_template('search.html', name=project_name, 
-		                                  netid=net_ids, 
-		                                  output_message=output_message, 
-		                                  data=data, 
+	return render_template('search.html', name=project_name,
+		                                  netid=net_ids,
+		                                  output_message=output_message,
+		                                  data=data,
 		                                  ingrs=all_ingrs_lst)
 
 
@@ -109,6 +115,47 @@ def substr_match (query, list_of_words):
 			List.append(i)
 	return List
 
+""" tokenize_ingredients takes in a list of ingredients and tokenizes them
+	by the spaces and returns a set of the tokenized ingredients.
+	Example: ["zest of lemon", "zest of lime"] would return
+	["zest", "of", "lemon", "lime"]
+"""
+def tokenize_ingredients (ingredients):
+	List = []
+	for i in ingredients:
+		tokens = re.findall("[^\s]+", i)
+		print (tokens)
+		for j in tokens:
+			List.append (j)
+	return set(List)
+
+""" get_stems takes in a list of ingredients and stems them
+	using PorterStemmer
+"""
+def get_stems(ingredients):
+	ingredientsSet = set ()
+	for w in ingredients:
+		#w = w.replace (" ", "")
+		ingredientsSet.add (stemmer.stem (w.lower()))
+	print (ingredientsSet)
+	return ingredientsSet
+
+""" exclude_recipe takes in a list of excluded ingredients
+ and the recipe_ingredients and returns a boolean representing
+ whether the excluded ingredients is found in the recipe.
+"""
+def exclude_recipe (excluded_ingredients, recipe_ingredients):
+	new_exclu = tokenize_ingredients (excluded_ingredients)
+	new_recipe = tokenize_ingredients (recipe_ingredients)
+	excluded_ingredients_set = get_stems (new_exclu)
+	recipe_ingredients_set = get_stems (new_recipe)
+	inter = excluded_ingredients_set.intersection (recipe_ingredients_set)
+	if (len(inter)) > 0:
+		return False
+	else:
+		return True
+
+
 #return flavor matrix that has 0's for recipes that include (if incl) or exclude (if not incl) the query ingredient
 def filter_clude_ingr(query):
 	ingrs_list = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
@@ -119,7 +166,7 @@ def filter_clude_ingr(query):
 			if not incl:
 				filter_vec = np.ones((len(raw), 1))- ingr_mat[:, ingr_inv_index[q]].reshape(len(raw), 1)
 			filtered_flav_mat = filter_vec*filtered_flav_mat
-	
+
 	return filtered_flav_mat
 
 
