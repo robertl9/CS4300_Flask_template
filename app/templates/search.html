@@ -23,16 +23,16 @@
           <input type="text" class="form-control" id="searchInp" placeholder="Enter keywords here"></select>
           <input type="hidden" id="searchOtp" name="search">
           <script>
-            autocomplete($("#searchInp"), $("#searchOtp"), {{ingrs|tojson}});
+            autocomplete($("#searchInp"), $("#searchOtp"), {{ingrs|tojson}}, {{query|tojson}});
           </script>
         </div>
       </div>
       <div id="slider-group" class="form-row">
-        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="sweet"></div>
-        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="salty"></div>
-        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="sour"></div>
-        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="bitter"></div>
-        <div><input type="range" class="slider" value="0" min="0" max="10" step="1" name="umami"></div>
+        <div><input type="range" class="slider" value={{sweet}} min="0" max="10" step="1" name="sweet"></div>
+        <div><input type="range" class="slider" value={{salty}} min="0" max="10" step="1" name="salty"></div>
+        <div><input type="range" class="slider" value={{sour}} min="0" max="10" step="1" name="sour"></div>
+        <div><input type="range" class="slider" value={{bitter}} min="0" max="10" step="1" name="bitter"></div>
+        <div><input type="range" class="slider" value={{umami}} min="0" max="10" step="1" name="umami"></div>
       </div>
       <div id="label-group" class="form-row">
          <div>Sweet</div><!--
@@ -46,7 +46,7 @@
     <div id="outputs">
       {% if data %}
         <p>{{output_message}}</p>
-        {% for d in data %}  
+        {% for d in data[:100] %}  
           <div class="panel panel-info dish-panel">
             <div class="panel-heading">
               <h3 class="panel-title">{{d["title"]}}</h3>
