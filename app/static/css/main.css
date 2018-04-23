@@ -101,6 +101,9 @@ button[type="submit"] {
 .dish-panel:hover {
   box-shadow: 2px 3px 8px 0 rgba(0, 0, 0, 0.2);
 }
+.dish-panel>.panel-heading:hover {
+  cursor: pointer;
+}
 .dish-image {
   max-width:100%;
   max-height:100%;

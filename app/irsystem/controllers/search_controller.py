@@ -71,23 +71,30 @@ def search():
 	try:
 		print(request.args)
 		query = request.args.get('search')
-		#include = bool(request.args.get('include'))
 		sweet = int(request.args.get('sweet'))
 		salty = int(request.args.get('salty'))
 		sour = int(request.args.get('sour'))
 		bitter = int(request.args.get('bitter'))
 		umami = int(request.args.get('umami'))
 		flavors = np.array([sweet, salty, sour, bitter, umami])
-		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query))]#[:100]] # first hundred results (temporary)
+		query = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
+		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query))]
 		output_message = "Your search returned " + str(len(data)) + " results:"
 	except TypeError:
 		data = []
 		output_message = ''
+		sweet = salty = sour = bitter = umami = 0
 	return render_template('search.html', name=project_name,
 		                                  netid=net_ids,
-		                                  output_message=output_message,
+		                                  ingrs=all_ingrs_lst,
 		                                  data=data,
-		                                  ingrs=all_ingrs_lst)
+		                                  query=query,
+		                                  sweet=sweet,
+		                                  salty=salty,
+		                                  sour=sour,
+		                                  bitter=bitter,
+		                                  umami=umami,
+		                                  output_message=output_message)
 
 
 #precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
@@ -163,7 +170,7 @@ def exclude_recipe (excluded_ingredients, recipe_ingredients):
 
 #return flavor matrix that has 0's for recipes that include (if incl) or exclude (if not incl) the query ingredient
 def filter_clude_ingr(query):
-	ingrs_list = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
+	ingrs_list = query
 	filtered_flav_mat = np.copy(flav_mat)
 	for (q, incl) in ingrs_list:
 		if q in all_ingrs_lst:

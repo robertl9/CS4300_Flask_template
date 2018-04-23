@@ -7,15 +7,15 @@ $(document).ready(function() {
     };
   });
 
-  $(".dish-panel").on("click", function() {
-    $(this).find(".panel-body").toggle(300);
+  $(".dish-panel>.panel-heading").on("click", function() {
+    $(this).parent().find(".panel-body").toggle(300);
   });
 
   $("#include").lc_switch("INCLUDE", "EXCLUDE");
 
 });
 
-function autocomplete(inp, otp, arr) {
+function autocomplete(inp, otp, arr, tags) {
 
   var queries = [];
 
@@ -45,6 +45,11 @@ function autocomplete(inp, otp, arr) {
   inp.on('itemRemoved', function(event) {
     queries = $.grep(queries, function(query) { return query.item !== event.item; });
   });
+
+  for (var i = 0; i < tags.length; i++) {
+    $("#include").prop("checked", tags[i][1]);
+    inp.tagsinput('add', tags[i][0]);
+  }
 
   $('#inputs').submit(function() {
     var input = "";
