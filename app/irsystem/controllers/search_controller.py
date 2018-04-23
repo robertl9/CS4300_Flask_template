@@ -12,6 +12,7 @@ stop = set(stopwords.words('english'))
 
 
 import json
+
 #import Levenshtein
 
 project_name = "TasteTest"
@@ -22,6 +23,7 @@ net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Steven Ye: x
 import re
 from annotated import annotatedDict
 import units
+import ml_model
 
 with open('aggreg.json') as json_data:
 	raw = json.load(json_data)
@@ -41,6 +43,9 @@ flav_mat = np.zeros((len(raw), 5))
 flav_norms = np.zeros(len(raw))
 ingr_mat = np.zeros((len(raw), len(all_ingrs)))
 
+#ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
+topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
+
 
 #makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
 # flav_norms (vector with the norms of each row of the flav_mat)
@@ -55,13 +60,14 @@ for i in range(len(raw)):
 		if name in annotatedDict:
 			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
 			flav_prof = np.add(flav_prof, (amount*units.unit_weights(unit))*np.array(flav_lst))
+		else:
+			###call ml_model and get topic-estimated flavor prof
+			flav_prof = np.add(flav_prof, ml_model.ingr_to_topic_prof(name, ml_model.model, topic_profs))
 		ingr_mat[i,ingr_inv_index[name]] = 1
 	if np.max(flav_prof) == 0:
 		flav_prof = np.array([1,1,1,1,1])
-	flav_mat[i,:] = 10*(flav_prof/np.max(flav_prof))
+	flav_mat[i,:] = 10*((1.0*flav_prof)/np.max(flav_prof))
 	flav_norms[i] = np.linalg.norm(flav_mat[i])
-
-
 
 
 #######
@@ -94,7 +100,7 @@ def search():
 #takes in np array of np array containing flavor profile, and returns a ranked list of indices
 def cos_sim_flavor(flavors, mat):
 	lst = np.dot(mat,flavors)
-	scores = np.divide(lst, flav_norms)
+	scores = np.divide(lst, 1.0*flav_norms)
 	first_zero_elt = np.count_nonzero(scores)
 	return np.ndarray.tolist(np.argsort(-scores))[:first_zero_elt]
 
