@@ -3,9 +3,12 @@ from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 from scraper import *
 
+from nltk.corpus import stopwords
+
 from nltk.stem import PorterStemmer
 import re
 stemmer=PorterStemmer()
+stop = set(stopwords.words('english'))
 
 
 import json
@@ -116,17 +119,19 @@ def substr_match (query, list_of_words):
 	return List
 
 """ tokenize_ingredients takes in a list of ingredients and tokenizes them
-	by the spaces and returns a set of the tokenized ingredients.
+	by the spaces and returns a set of the tokenized ingredients, excluding
+	stop words.
 	Example: ["zest of lemon", "zest of lime"] would return
-	["zest", "of", "lemon", "lime"]
+	["zest", "lemon", "lime"]
 """
-def tokenize_ingredients (ingredients):
+def tokenize_ingredients (ingredients, stop_words):
 	List = []
 	for i in ingredients:
 		tokens = re.findall("[^\s]+", i)
 		print (tokens)
 		for j in tokens:
-			List.append (j)
+			if j not in stop_words:
+				List.append (j)
 	return set(List)
 
 """ get_stems takes in a list of ingredients and stems them
@@ -145,8 +150,8 @@ def get_stems(ingredients):
  whether the excluded ingredients is found in the recipe.
 """
 def exclude_recipe (excluded_ingredients, recipe_ingredients):
-	new_exclu = tokenize_ingredients (excluded_ingredients)
-	new_recipe = tokenize_ingredients (recipe_ingredients)
+	new_exclu = tokenize_ingredients (excluded_ingredients, stop)
+	new_recipe = tokenize_ingredients (recipe_ingredients, stop)
 	excluded_ingredients_set = get_stems (new_exclu)
 	recipe_ingredients_set = get_stems (new_recipe)
 	inter = excluded_ingredients_set.intersection (recipe_ingredients_set)
