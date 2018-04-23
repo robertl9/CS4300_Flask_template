@@ -11,6 +11,8 @@ $(document).ready(function() {
     $(this).find(".panel-body").toggle(300);
   });
 
+  $("#include").lc_switch("INCLUDE", "EXCLUDE");
+
 });
 
 function autocomplete(inp, otp, arr) {

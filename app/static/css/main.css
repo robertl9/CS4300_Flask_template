@@ -5,7 +5,7 @@ body {
 #inputs {
   text-align: center;
   padding: 10px;
-  width: 50%;
+  width: 480px;
   margin: auto;
 }
 
@@ -22,67 +22,17 @@ body {
   border: none
 }
 
-input[name="include"] {
-  margin-left: 10px;
+.input-group {
+  display: inline-block;
 }
-
 .input-group .bootstrap-tagsinput {
-  width: 100%;
+  width: 330px;
   margin-bottom: 1px;
   text-align: left;
 }
 
-/*.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-.switch input {
-  display:none;
-}
-.toggle {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-.toggle:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-input:checked + .toggle {
-  background-color: #2196F3;
-}
-input:focus + .toggle {
-  box-shadow: 0 0 1px #2196F3;
-}
-input:checked + .toggle:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-.toggle.round {
-  border-radius: 34px;
-}
-.toggle.round:before {
-  border-radius: 50%;
-}*/
-
 #slider-group {
-  margin: 30px 0;
+  margin-top: 30px;
   width: 100%;
 }
 #slider-group>div {
@@ -104,10 +54,10 @@ input:checked + .toggle:before {
   -webkit-transition: .2s;
   transition: opacity .2s;
   position: absolute;
-  top: -9999px;
-  bottom: -9999px;
-  left: -9999px;
-  right: -9999px;
+  top: -100px;
+  bottom: -100px;
+  left: -100px;
+  right: -100px;
   margin: auto;
 }
 .slider::-webkit-slider-thumb {
@@ -135,6 +85,19 @@ input:checked + .toggle:before {
   background: url('../assets/umami.png') left center/contain no-repeat !important;
 }
 
+#label-group>div {
+  display: inline-block;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+  width: 20%;
+}
+
+button[type="submit"] {
+  margin: 30px;
+}
+
 .dish-panel:hover {
   box-shadow: 2px 3px 8px 0 rgba(0, 0, 0, 0.2);
 }
@@ -142,23 +105,11 @@ input:checked + .toggle:before {
   max-width:100%;
   max-height:100%;
 }
-/*.dish-rating {
-  margin: auto;
-  margin-top: 30px;
-  text-align: center;
-  border-radius: 50%;
-  width: 66px;
-  height: 66px;
-  padding: 8px;
-  border: 8px solid #333;
-  font: 32px Arial, sans-serif;
-  color: #333;
-}*/
 
 footer {
   text-align: center;
   color: #888;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 footer p {
   margin: 0;
