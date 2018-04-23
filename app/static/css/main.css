@@ -108,6 +108,10 @@ button[type="submit"] {
   max-width:100%;
   max-height:100%;
 }
+.dish-rating {
+  margin-top: 20px;
+  text-align: center;
+}
 
 footer {
   text-align: center;

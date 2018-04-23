@@ -58,9 +58,9 @@
                     <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
                   </a>
                   {% if d["rating"] and d["rating"] > 0 %}
-                    <div class="dish-rating">{{d["rating"]}}</div>
+                    <div class="dish-rating">Rating: <span>{{d["rating"]}}</span>/100</div>
                   {% else %}
-                    <div class="dish-rating">{{d["spoonacularScore"]}}</div>
+                    <div class="dish-rating">Rating: <span>{{d["spoonacularScore"]}}</span>/100</div>
                   {% endif %}
                 </div>
                 <div class="col-xs-8 col-md-9">
