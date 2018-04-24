@@ -185,7 +185,10 @@ def exclude_recipe (ingredients_tuples):
 		inter_inclu = included_ingredients_set.intersection (recipe_ingredients_set)
 
 		### we want inter_exclu to be empty and inter_inclu to be nonempty
-		filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) > 0)
+		if len(included_ingredients)==0:
+			filter_vec[i] = (len(inter_exclu) == 0)	
+		else:
+			filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) > 0)
 	return filter_vec
 
 
