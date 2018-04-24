@@ -26,7 +26,7 @@ import units
 #import ml_model
 
 with open('aggreg.json') as json_data:
-	raw = json.load(json_data)
+	raw = json.load(json_data)[:3000]
 with open('all_ingrs.json') as json_data:
 	all_ingrs = json.load(json_data)
 
