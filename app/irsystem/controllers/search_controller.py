@@ -23,7 +23,7 @@ net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Steven Ye: x
 import re
 from annotated import annotatedDict
 import units
-import ml_model
+#import ml_model
 
 with open('aggreg.json') as json_data:
 	raw = json.load(json_data)
@@ -44,8 +44,14 @@ flav_norms = np.zeros(len(raw))
 ingr_mat = np.zeros((len(raw), len(all_ingrs)))
 
 #ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
-topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
+topic_profs = np.load('topic_profs.npy')
+#topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
+model_components = np.load('model_components.npy')
+cv_vocabulary = np.load('cv_vocabulary.npy').item()
 
+
+def ingr_to_topic_prof(ingr, model_components, topic_profs):
+	return topic_profs[np.argmax(model_components[:, cv_vocabulary[ingr]])]
 
 #makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
 # flav_norms (vector with the norms of each row of the flav_mat)
@@ -62,7 +68,7 @@ for i in range(len(raw)):
 			flav_prof = np.add(flav_prof, (amount*units.unit_weights(unit))*np.array(flav_lst))
 		else:
 			###call ml_model and get topic-estimated flavor prof
-			flav_prof = np.add(flav_prof, ml_model.ingr_to_topic_prof(name, ml_model.model, topic_profs))
+			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
 		ingr_mat[i,ingr_inv_index[name]] = 1
 	if np.max(flav_prof) == 0:
 		flav_prof = np.array([1,1,1,1,1])

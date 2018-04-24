@@ -45,9 +45,11 @@ def ingr_to_topic_prof(ingr, model, topic_profs):
 	return topic_profs[np.argmax(model.components_[:, cv.vocabulary_[ingr]])]
 
 
+topic_profs = [flavors_to_topics(i, model, feature_names) for i in range(n_topic)]
 
-
-
+np.save('topic_profs.npy', topic_profs)
+np.save('model_components.npy', model.components_)
+np.save('cv_vocabulary.npy', cv.vocabulary_)
 
 
 
