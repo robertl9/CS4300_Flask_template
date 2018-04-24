@@ -142,7 +142,7 @@ def tokenize_ingredients (ingredients, stop_words):
 	List = []
 	for i in ingredients:
 		tokens = re.findall("[^\s]+", i)
-		print (tokens)
+		#print (tokens)
 		for j in tokens:
 			if j not in stop_words:
 				List.append (j)
@@ -156,7 +156,7 @@ def get_stems(ingredients):
 	for w in ingredients:
 		#w = w.replace (" ", "")
 		ingredientsSet.add (stemmer.stem (w.lower()))
-	print (ingredientsSet)
+	#print (ingredientsSet)
 	return ingredientsSet
 
 """ exclude_recipe takes in a list tuples (ingredients, bool) (where bool = true if include, false if exclude)
@@ -164,8 +164,8 @@ def get_stems(ingredients):
  whether the excluded / included ingredients are found in the recipe.
 """
 def exclude_recipe (ingredients_tuples):
-	filter_vec = np.array((len(raw), 1))
-	for i in len(raw):
+	filter_vec = np.zeros((len(raw), 1))
+	for i in range(len(raw)):
 		recipe_ingredients = [ingr['name'] for ingr in raw[i]['extendedIngredients']]
 		excluded_ingredients = [ingr for (ingr, incl) in ingredients_tuples if not incl]
 		included_ingredients = [ingr for (ingr, incl) in ingredients_tuples if incl]
