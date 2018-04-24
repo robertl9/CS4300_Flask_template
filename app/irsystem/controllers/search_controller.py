@@ -159,33 +159,35 @@ def get_stems(ingredients):
 	print (ingredientsSet)
 	return ingredientsSet
 
-""" exclude_recipe takes in a list of excluded ingredients
- and the recipe_ingredients and returns a boolean representing
- whether the excluded ingredients is found in the recipe.
+""" exclude_recipe takes in a list tuples (ingredients, bool) (where bool = true if include, false if exclude)
+ and the recipe_ingredients and returns a boolean vector representing
+ whether the excluded / included ingredients are found in the recipe.
 """
-def exclude_recipe (excluded_ingredients, recipe_ingredients):
-	new_exclu = tokenize_ingredients (excluded_ingredients, stop)
-	new_recipe = tokenize_ingredients (recipe_ingredients, stop)
-	excluded_ingredients_set = get_stems (new_exclu)
-	recipe_ingredients_set = get_stems (new_recipe)
-	inter = excluded_ingredients_set.intersection (recipe_ingredients_set)
-	if (len(inter)) > 0:
-		return False
-	else:
-		return True
+def exclude_recipe (ingredients_tuples):
+	filter_vec = np.array((len(raw), 1))
+	for i in len(raw):
+		recipe_ingredients = [ingr['name'] for ingr in raw[i]['extendedIngredients']]
+		excluded_ingredients = [ingr for (ingr, incl) in ingredients_tuples if not incl]
+		included_ingredients = [ingr for (ingr, incl) in ingredients_tuples if incl]
+		new_exclu = tokenize_ingredients (excluded_ingredients, stop)
+		new_inclu = tokenize_ingredients(included_ingredients, stop)
+		new_recipe = tokenize_ingredients (recipe_ingredients, stop)
+		excluded_ingredients_set = get_stems (new_exclu)
+		included_ingredients_set = get_stems(new_inclu)
+		recipe_ingredients_set = get_stems (new_recipe)
+		inter_exclu = excluded_ingredients_set.intersection (recipe_ingredients_set)
+		inter_inclu = included_ingredients_set.intersection (recipe_ingredients_set)
+
+		### we want inter_exclu to be empty and inter_inclu to be nonempty
+		filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) > 0)
+	return filter_vec
 
 
 #return flavor matrix that has 0's for recipes that include (if incl) or exclude (if not incl) the query ingredient
 def filter_clude_ingr(query):
-	ingrs_list = query
 	filtered_flav_mat = np.copy(flav_mat)
-	for (q, incl) in ingrs_list:
-		if q in all_ingrs_lst:
-			filter_vec = ingr_mat[:, ingr_inv_index[q]].reshape(len(raw), 1)
-			if not incl:
-				filter_vec = np.ones((len(raw), 1))- ingr_mat[:, ingr_inv_index[q]].reshape(len(raw), 1)
-			filtered_flav_mat = filter_vec*filtered_flav_mat
-
+	filter_vec = exclude_recipe(query)
+	filtered_flav_mat = filter_vec*filtered_flav_mat
 	return filtered_flav_mat
 
 
