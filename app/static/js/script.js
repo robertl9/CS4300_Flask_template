@@ -7,11 +7,15 @@ $(document).ready(function() {
     };
   });
 
+  $("#include").lc_switch("INCLUDE", "EXCLUDE");
+
   $(".dish-panel>.panel-heading").on("click", function() {
     $(this).parent().find(".panel-body").toggle(300);
   });
 
-  $("#include").lc_switch("INCLUDE", "EXCLUDE");
+  $("img").on("error", function() {
+    $(this).attr('src', '/static/assets/defimage.png');
+  });
 
 });
 
