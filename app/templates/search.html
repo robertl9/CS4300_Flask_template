@@ -8,6 +8,7 @@
     <script src="/static/js/typeahead/typeahead.js"></script>
     <script src="/static/js/lcswitch/lc_switch.js"></script>
     <script src="/static/js/script.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="/static/js/tagsinput/src/bootstrap-tagsinput.css">
     <link rel="stylesheet" href="/static/js/typeahead/typeahead.css">
     <link rel="stylesheet" href="/static/js/lcswitch/lc_switch.css">
@@ -46,7 +47,7 @@
     <div id="outputs">
       {% if data %}
         <p>{{output_message}}</p>
-        {% for d in data[:100] %}  
+        {% for d in data[:10] %}  
           <div class="panel panel-info dish-panel">
             <div class="panel-heading">
               <h3 class="panel-title">{{d["title"]}}</h3>
@@ -57,10 +58,11 @@
                   <a href={{d["sourceUrl"]}} target="_blank">
                     <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
                   </a>
+                  <div class="dish-rating"></div>
                   {% if d["rating"] and d["rating"] > 0 %}
-                    <div class="dish-rating">Rating: <span>{{d["rating"]}}</span>/100</div>
+                    <script>displayRating($(".dish-rating").last(), {{d["rating"]}});</script>
                   {% else %}
-                    <div class="dish-rating">Rating: <span>{{d["spoonacularScore"]}}</span>/100</div>
+                    <script>displayRating($(".dish-rating").last(), {{d["spoonacularScore"]}});</script>
                   {% endif %}
                 </div>
                 <div class="col-xs-8 col-md-9">

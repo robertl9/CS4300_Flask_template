@@ -17,9 +17,9 @@ $(document).ready(function() {
 
 function autocomplete(inp, otp, arr, tags) {
 
-  var queries = [];
+  let queries = [];
 
-  var ingrs = new Bloodhound({
+  let ingrs = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.whitespace,
     queryTokenizer: Bloodhound.tokenizers.whitespace,
     local: $.grep(arr, function(item) { return item.length <= 10 })
@@ -46,13 +46,13 @@ function autocomplete(inp, otp, arr, tags) {
     queries = $.grep(queries, function(query) { return query.item !== event.item; });
   });
 
-  for (var i = 0; i < tags.length; i++) {
+  for (let i = 0; i < tags.length; i++) {
     $("#include").prop("checked", tags[i][1]);
     inp.tagsinput('add', tags[i][0]);
   }
 
   $('#inputs').submit(function() {
-    var input = "";
+    let input = "";
     queries.forEach(function(query) {
       input += query.item + '|' + (query.include ? 1 : 0) + ','
     })
@@ -60,4 +60,20 @@ function autocomplete(inp, otp, arr, tags) {
     return true;
 });
 
+}
+
+function displayRating(div, rating) {
+  rating = Math.round(rating / 2) / 10;
+  for (var i = 0; i < 5; i++) {
+    let star = $("<i class='fa fa-2x'></i>");
+    if (rating < i + 0.3) {
+      star.addClass("fa-star-o");
+    } else if (rating < i + 0.8) {
+      star.addClass("fa-star-half-o");
+    } else {
+      star.addClass("fa-star");
+    }
+    div.append(star);
+  }
+  div.append("<div>" + rating.toFixed(1) + "</div>");
 }
