@@ -17,7 +17,30 @@ $(document).ready(function() {
     $(this).attr('src', '/static/assets/defimage.png');
   });
 
+  sliderTooltip();
+
 });
+
+function sliderTooltip() {
+
+  let tooltip = $("<div class='slider-tooltip' />").hide();
+  let setPos = function(val) {
+    tooltip.css("top", 15 * (10-val) - 8 + "px");
+    tooltip.text(val);
+  }
+
+  $("#slider-group>div").hover(function() {
+    $(this).append(tooltip);
+    setPos($(this).find(".slider").val());
+    tooltip.show();
+  }, function() {
+    tooltip.hide();
+  });
+  $(".slider").on("input", function() {
+    setPos($(this).val());
+  });
+
+}
 
 function autocomplete(inp, otp, arr, tags) {
 
@@ -26,7 +49,9 @@ function autocomplete(inp, otp, arr, tags) {
   let ingrs = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.whitespace,
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: $.grep(arr, function(item) { return item.length <= 10 })
+    local: $.grep(arr, function(item) {
+      return item.indexOf(' ') < 0 && !item.endsWith('s');
+    })
   });
   ingrs.initialize();
 
@@ -67,6 +92,7 @@ function autocomplete(inp, otp, arr, tags) {
 }
 
 function displayRating(div, rating) {
+  rating = rating / 2 + 50;
   rating = Math.round(rating / 2) / 10;
   for (var i = 0; i < 5; i++) {
     let star = $("<i class='fa fa-2x'></i>");

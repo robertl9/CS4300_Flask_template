@@ -64,6 +64,7 @@
                   {% else %}
                     <script>displayRating($(".dish-rating").last(), {{d["spoonacularScore"]}});</script>
                   {% endif %}
+                  <div class="dish-note">(Add your review <a href={{d["sourceUrl"]}} target="_blank">here</a>)</div>
                 </div>
                 <div class="col-xs-8 col-md-9">
                   <ul class="list-group">

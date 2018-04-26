@@ -84,6 +84,16 @@ body {
 .slider[name="umami"]::-webkit-slider-thumb {
   background: url('../assets/umami.png') left center/contain no-repeat !important;
 }
+.slider-tooltip {
+  position: absolute;
+  left: 72px;
+  color: #fff;
+  background-color: rgba(0,0,0,0.45);
+  border-bottom-right-radius: 6px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding: 3px 8px;
+}
 
 #label-group>div {
   display: inline-block;
@@ -130,9 +140,12 @@ button[type="submit"] {
   color: #f90;
 }
 .dish-rating>div {
-  margin-top: 8px;
+  margin: 8px 0;
   font-size: 18px;
   font-weight: bold;
+}
+.dish-note {
+  text-align: center;
 }
 
 footer {
