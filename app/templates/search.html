@@ -29,11 +29,11 @@
         </div>
       </div>
       <div id="slider-group" class="form-row">
-        <div><input type="range" class="slider" value={{sweet}} min="0" max="10" step="1" name="sweet"></div>
-        <div><input type="range" class="slider" value={{salty}} min="0" max="10" step="1" name="salty"></div>
-        <div><input type="range" class="slider" value={{sour}} min="0" max="10" step="1" name="sour"></div>
-        <div><input type="range" class="slider" value={{bitter}} min="0" max="10" step="1" name="bitter"></div>
-        <div><input type="range" class="slider" value={{umami}} min="0" max="10" step="1" name="umami"></div>
+        <div><input type="range" class="slider" value="{{sweet}}" min="0" max="10" step="1" name="sweet"></div>
+        <div><input type="range" class="slider" value="{{salty}}" min="0" max="10" step="1" name="salty"></div>
+        <div><input type="range" class="slider" value="{{sour}}" min="0" max="10" step="1" name="sour"></div>
+        <div><input type="range" class="slider" value="{{bitter}}" min="0" max="10" step="1" name="bitter"></div>
+        <div><input type="range" class="slider" value="{{umami}}" min="0" max="10" step="1" name="umami"></div>
       </div>
       <div id="label-group" class="form-row">
          <div>Sweet</div><!--
@@ -45,43 +45,34 @@
       <button type="submit" class="btn btn-primary">Explore</button>
     </form>
     <div id="outputs">
-      {% if data %}
-        <p>{{output_message}}</p>
-        {% for d in data[:10] %}  
-          <div class="panel panel-info dish-panel">
-            <div class="panel-heading" style="background-image: url({{d['image']}});">
-              <h3 class="dish-title">{{d["title"]}}</h3>
+      <div id="template" class="panel panel-info dish-panel" style="display: none;">
+        <div class="panel-heading">
+          <h3 class="dish-title"></h3>
+        </div>
+        <div class="panel-body" style="display: none;">
+          <div class="row">
+            <div class="col-xs-4 col-md-3">
+              <img src="/static/assets/defimage.png" class="img-rounded dish-image" alt="(no image)">
+              <div class="dish-rating"></div>
+              <div class="dish-note">(Add your review <a href="#" target="_blank">here</a>)</div>
             </div>
-            <div class="panel-body" style="display: none;">
-              <div class="row">
-                <div class="col-xs-4 col-md-3">
-                  <a href={{d["sourceUrl"]}} target="_blank">
-                    <img src={{d["image"]}} class="img-rounded dish-image" alt="(no image)">
-                  </a>
-                  <div class="dish-rating"></div>
-                  {% if d["rating"] and d["rating"] > 0 %}
-                    <script>displayRating($(".dish-rating").last(), {{d["rating"]}});</script>
-                  {% else %}
-                    <script>displayRating($(".dish-rating").last(), {{d["spoonacularScore"]}});</script>
-                  {% endif %}
-                  <div class="dish-note">(Add your review <a href={{d["sourceUrl"]}} target="_blank">here</a>)</div>
-                </div>
-                <div class="col-xs-8 col-md-9">
-                  <ul class="list-group">
-                    <li class="list-group-item active">Ingredients</li>
-                    {% for i in d["extendedIngredients"] %}
-                      <li class="list-group-item">{{i["originalString"]}}</li>
-                    {% endfor %}
-                  </ul>
-                  <ul class="list-group">
-                    <li class="list-group-item active">Instructions</li>
-                    <li class="list-group-item">{{d["instructions"]}}</li>
-                  </ul>
-                </div>
-              </div>
+            <div class="col-xs-8 col-md-9">
+              <ul class="list-group dish-ingrs">
+                <li class="list-group-item active">Ingredients</li>
+              </ul>
+              <ul class="list-group">
+                <li class="list-group-item active">Instructions</li>
+                <li class="list-group-item dish-descs"></li>
+              </ul>
             </div>
           </div>
-        {% endfor %}
+        </div>
+      </div>
+      {% if data %}
+        <p>{{output_message}}</p>
+        <div id="alert-show" class="alert alert-info" role="alert" style="display: none;">Show more results</div>
+        <div id="alert-end" class="alert alert-danger" role="alert" style="display: none;">End of results</div>
+        <script> showResults($("#template"), {{data|tojson}}, 5); </script>
       {% endif %}
     </div>
     <footer>

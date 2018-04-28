@@ -148,6 +148,13 @@ button[type="submit"] {
   text-align: center;
 }
 
+#alert-show, #alert-end {
+  text-align: center;
+}
+#alert-show {
+  cursor: pointer;
+}
+
 footer {
   text-align: center;
   color: #888;

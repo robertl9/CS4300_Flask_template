@@ -6,16 +6,7 @@ $(document).ready(function() {
       e.keyCode = 188;
     };
   });
-
   $("#include").lc_switch("INCLUDE", "EXCLUDE");
-
-  $(".dish-panel>.panel-heading").on("click", function() {
-    $(this).parent().find(".panel-body").toggle(300);
-  });
-
-  $("img").on("error", function() {
-    $(this).attr('src', '/static/assets/defimage.png');
-  });
 
   sliderTooltip();
 
@@ -89,6 +80,62 @@ function autocomplete(inp, otp, arr, tags) {
     return true;
 });
 
+}
+
+function showResults(temp, data, step) {
+
+  let n = 0;
+
+  let showNext = function() {
+      for (let i = n; i < n+step; i++) {
+        let d = data[i];
+        if (!d) break;
+        makePanel(temp, d);
+      }
+      n += step;
+      if (n >= data.length) {
+        $("#alert-show").hide();
+        $("#alert-end").show().appendTo("#outputs");
+      } else {
+        $("#alert-end").hide();
+        $("#alert-show").show().appendTo("#outputs");
+      }
+  }
+
+  showNext();
+
+  $("#alert-show").on("click", showNext);
+
+}
+
+function makePanel(temp, d) {
+  let panel = temp.clone().attr("id", "dish" + i);
+  panel.find(".panel-heading").css("background-image", "url("+d["image"]+")");
+  panel.find(".dish-title").text(d["title"]);
+  panel.find(".dish-image").attr("src", d["image"]);
+  if (d["rating"] && d["rating"] > 0) {
+    displayRating(panel.find(".dish-rating"), d["rating"]);
+  } else {
+    displayRating(panel.find(".dish-rating"), d["spoonacularScore"]);
+  }
+  panel.find(".dish-note>a").attr("href", d["sourceUrl"]);
+  for (var i = 0; i < d["extendedIngredients"].length; i++) {
+    panel.find(".dish-ingrs").append(
+      '<li class="list-group-item">' +
+        d["extendedIngredients"][i]["originalString"] + 
+      '</li>');
+  }
+  panel.find(".dish-descs").text(d["instructions"]);
+  panel.show();
+  $("#outputs").append(panel);
+
+  panel.find(".panel-heading").on("click", function() {
+    panel.find(".panel-body").toggle(300);
+  });
+
+  panel.find("img").on("error", function() {
+    $(this).attr('src', '/static/assets/defimage.png');
+  });
 }
 
 function displayRating(div, rating) {
