@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <title>TasteTest</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="/static/js/tagsinput/src/bootstrap-tagsinput.js"></script>
+    <script src="/static/js/multiselect/bootstrap-multiselect.js"></script>
     <script src="/static/js/typeahead/typeahead.js"></script>
     <script src="/static/js/lcswitch/lc_switch.js"></script>
     <script src="/static/js/script.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="/static/js/tagsinput/src/bootstrap-tagsinput.css">
+    <link rel="stylesheet" href="/static/js/multiselect/bootstrap-multiselect.css">
     <link rel="stylesheet" href="/static/js/typeahead/typeahead.css">
     <link rel="stylesheet" href="/static/js/lcswitch/lc_switch.css">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
@@ -42,7 +45,41 @@
       --><div>Bitter</div><!--
       --><div>Savory</div>
       </div>
-      <button type="submit" class="btn btn-primary">Explore</button>
+      <div class="form-row">
+        <select id="restrictions" multiple="multiple" name="restrictions">
+          <option value="alcohol">Alcohol free</option>
+          <option value="beef">Beef free</option>
+          <option value="dairy">Dairy free</option>
+          <option value="egg">Egg free</option>
+          <option value="fish">Fish free</option>
+          <option value="gluten">Gluten free</option>
+          <option value="halal">Halal</option>
+          <option value="ketogenic">Ketogenic</option>
+          <option value="kosher">Kosher</option>
+          <option value="lactoovo">Lacto ovo vegetarian</option>
+          <option value="pork">Pork free</option>
+          <option value="peanut">Peanut free</option>
+          <option value="pescatarian">Pescatarian</option>
+          <option value="sesame">Sesame free</option>
+          <option value="shellfish">Shellfish free</option>
+          <option value="soy">Soy free</option>
+          <option value="treenuts">Tree-nuts free</option>
+          <option value="vegan">Vegan</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="wheat">Wheat free</option>
+        </select>
+        <script>
+          $("#restrictions").multiselect({
+            dropUp: true,
+            maxHeight: 200,
+            numberDisplayed: 4,
+            buttonWidth: "450px",
+            buttonClass: "btn btn-default",
+            nonSelectedText: "Select restrictions (optional)"
+          });
+        </script>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg">Explore</button>
     </form>
     <div id="outputs">
       <div id="template" class="panel panel-info dish-panel" style="display: none;">

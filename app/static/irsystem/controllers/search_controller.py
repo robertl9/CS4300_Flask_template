@@ -88,6 +88,7 @@ def search():
 		sour = int(request.args.get('sour'))
 		bitter = int(request.args.get('bitter'))
 		umami = int(request.args.get('umami'))
+		restrictions = request.form.getlist('restrictions')
 		flavors = np.array([sweet, salty, sour, bitter, umami])
 		if np.max(flavors) == 0:
 			flav_prof = np.array([1,1,1,1,1])
