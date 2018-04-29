@@ -290,8 +290,8 @@ def is_halal(dish):
 def isTreeNutFree(dish):
 	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
 	ingr = get_stems(recipe_ingredients)
-	for elt in treeNuts:
-		if elt in pork:
+	for elt in ingr:
+		if elt in treeNuts:
 			return false
 	return true
 
@@ -299,17 +299,91 @@ def is_kosher(dish):
 	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
 	ingr = get_stems(recipe_ingredients)
 	beef_check = false
-	dairy_check = false
 	for elt in ingr:
 		if elt in beef:
 			beef_check = true
-		if elt in dairy:
-			dairy_check = true
 		if elt in kosher:
 			 return false
-	return not (beef_check && dairy_check)
+	if beef_check == true and isDairyFree(dish) == false:
+		return false
+	return true
 
+def isShellFishFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in shellfish:
+			return false
+	return true
 
+def isFishFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in fish:
+			return false
+	return true
 
+def isEggFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in egg:
+			return false
+	return true
 
+def isPeanutFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in peanuts:
+			return false
+	return true
+
+def isWheatFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in wheat:
+			return false
+	return true
+
+def isSoyFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in soy:
+			return false
+	return true
+
+def isSesameFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in sesame:
+			return false
+	return true
+
+def isPorkFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in pork:
+			return false
+	return true
+
+def isBeefFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in beef:
+			return false
+	return true
 	
+def isAlcoholFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in alcohol:
+			return false
+	return true
