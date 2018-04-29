@@ -43,6 +43,16 @@ alcohol = Set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka
 
 kosher = shellfish.union(pork.union(wild_meat))
 
+vegan
+
+paleo
+
+vegetarian = Set([])
+
+keto = Set([])
+
+
+
 
 
 def restriction_category(cat_lst): #this function takes in a list of broad categories such a kosher and wheat
@@ -74,6 +84,8 @@ def is_halal(ingr_lst):
         if elt in alcohol:
             return false
     return true
+
+
     
     
     
