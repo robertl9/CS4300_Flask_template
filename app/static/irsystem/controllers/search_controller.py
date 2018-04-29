@@ -226,6 +226,11 @@ def isDairyFree(dish):
 def isVegan(dish):
 	return dish['vegan']
 
+def isPescatarian(dish):
+	return 'pescatarian' in dish['diets']
+
+#Major Food Groups
+
 dairy = Set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
              'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
 
