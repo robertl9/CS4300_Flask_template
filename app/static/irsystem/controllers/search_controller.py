@@ -277,7 +277,37 @@ alcohol = Set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka
                'tequila', 'moon shine', 'red wine', 'white wine', 'rose', 'absinthe', 'sake'
                , 'soju', 'rice wine', 'liquer','spirit'])
 
+def is_halal(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in pork:
+			return false
+		if elt in alcohol:
+			return false
+	return true
 
+def isTreeNutFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in treeNuts:
+		if elt in pork:
+			return false
+	return true
+
+def is_kosher(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	beef_check = false
+	dairy_check = false
+	for elt in ingr:
+		if elt in beef:
+			beef_check = true
+		if elt in dairy:
+			dairy_check = true
+		if elt in kosher:
+			 return false
+	return not (beef_check && dairy_check)
 
 
 
