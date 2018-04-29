@@ -178,17 +178,17 @@ def exclude_recipe (ingredients_tuples):
 		excluded_ingredients = [ingr for (ingr, incl) in ingredients_tuples if not incl]
 		included_ingredients = [ingr for (ingr, incl) in ingredients_tuples if incl]
 		new_exclu = tokenize_ingredients (excluded_ingredients, stop)
-		new_inclu = tokenize_ingredients(included_ingredients, stop)
+		#new_inclu = tokenize_ingredients(included_ingredients, stop)
 		new_recipe = tokenize_ingredients (recipe_ingredients, stop)
 		excluded_ingredients_set = get_stems (new_exclu)
-		included_ingredients_set = get_stems(new_inclu)
+		included_ingredients_set = get_stems(included_ingredients)
 		recipe_ingredients_set = get_stems (new_recipe)
 		inter_exclu = excluded_ingredients_set.intersection (recipe_ingredients_set)
 		inter_inclu = included_ingredients_set.intersection (recipe_ingredients_set)
 
 		### we want inter_exclu to be empty and inter_inclu to be nonempty
 		if len(included_ingredients)==0:
-			filter_vec[i] = (len(inter_exclu) == 0)	
+			filter_vec[i] = (len(inter_exclu) == 0)
 		else:
 			filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) > 0)
 	return filter_vec
@@ -232,7 +232,7 @@ def isPescatarian(dish):
 	return 'pescatarian' in dish['diets']
 
 #Major Food Groups
-# NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products. 
+# NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products.
 
 dairy = Set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
              'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
@@ -379,7 +379,7 @@ def isBeefFree(dish):
 		if elt in beef:
 			return false
 	return true
-	
+
 def isAlcoholFree(dish):
 	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
 	ingr = get_stems(recipe_ingredients)
