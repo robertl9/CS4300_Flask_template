@@ -211,6 +211,8 @@ def add_rating(dish):
 #####################################################################################################################
 #Helpers for labels that are pre built in
 
+def isLactoOvoVegatarian(dish):
+	return 'lacto ovo vegetarian' in dish['diets']
 def isGlutenFree(dish):
 	return dish['glutenFree']
 
@@ -230,6 +232,7 @@ def isPescatarian(dish):
 	return 'pescatarian' in dish['diets']
 
 #Major Food Groups
+# NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products. 
 
 dairy = Set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
              'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
@@ -273,6 +276,9 @@ beef = Set(['beef tartar', 'beef', 'steak', 'ribeye', 'corned beef', 'pastrami',
 alcohol = Set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka', 'wiskey', 'scotch',
                'tequila', 'moon shine', 'red wine', 'white wine', 'rose', 'absinthe', 'sake'
                , 'soju', 'rice wine', 'liquer','spirit'])
+
+
+
 
 
 
