@@ -116,382 +116,6 @@ def search():
 		                                  output_message=output_message)
 
 
-#precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
-#takes in np array of np array containing flavor profile, and returns a ranked list of indices
-def cos_sim_flavor(flavors, mat):
-	lst = np.dot(mat,flavors)
-	scores = np.divide(lst, 1.0*flav_norms)
-	first_zero_elt = np.count_nonzero(scores)
-	return np.ndarray.tolist(np.argsort(-scores))[:first_zero_elt]
-
-#def edit_distance (ingredient, database_res):
-#	return Levenshtein.distance(ingredient.lower(), database_res.lower())
-
-#def edit_distance_search (query, ingredients):
-#	List = []
-#	for i in ingredients:
-#		tupl = (edit_distance(query, i["text"]),i)
-#		List.append(tupl)
-#	sortedList = sorted(List, key=lambda tup: tup[0])
-#	return sortedList
-
-#returns list of strings which contain substring. Unoptimized
-def substr_match (query, list_of_words):
-	length = len(query)
-	List = []
-	for i in list_of_words:
-		if i[:length] == query:
-			List.append(i)
-	return List
-
-""" tokenize_ingredients takes in a list of ingredients and tokenizes them
-	by the spaces and returns a set of the tokenized ingredients, excluding
-	stop words.
-	Example: ["zest of lemon", "zest of lime"] would return
-	["zest", "lemon", "lime"]
-"""
-def tokenize_ingredients (ingredients, stop_words):
-	List = []
-	for i in ingredients:
-		tokens = re.findall("[^\s]+", i)
-		#print (tokens)
-		for j in tokens:
-			if j not in stop_words:
-				List.append (j)
-	return set(List)
-
-""" get_stems takes in a list of ingredients and stems them
-	using PorterStemmer
-"""
-def get_stems(ingredients):
-	ingredientsSet = set ()
-	for w in ingredients:
-		#w = w.replace (" ", "")
-		ingredientsSet.add (stemmer.stem (w.lower()))
-	#print (ingredientsSet)
-	return ingredientsSet
-
-""" exclude_recipe takes in a list tuples (ingredients, bool) (where bool = true if include, false if exclude)
- and the recipe_ingredients and returns a boolean vector representing
- whether the excluded / included ingredients are found in the recipe.
-"""
-def exclude_recipe (ingredients_tuples):
-	filter_vec = np.zeros((len(raw), 1))
-	excluded_ingredients = [ingr for (ingr, incl) in ingredients_tuples if not incl]
-	included_ingredients = [ingr for (ingr, incl) in ingredients_tuples if incl]
-	print(included_ingredients)
-	new_exclu = tokenize_ingredients (excluded_ingredients, stop)
-	new_inclu = tokenize_ingredients(included_ingredients, stop)
-	excluded_ingredients_set = get_stems (new_exclu)
-	#included_ingredients_set = get_stems(new_inclu)
-	included_ingredients_set = get_stems(included_ingredients)
-	for i in range(len(raw)):
-		recipe_ingredients = [ingr['name'] for ingr in raw[i]['extendedIngredients']]
-		new_recipe = tokenize_ingredients (recipe_ingredients, stop)
-		recipe_ingredients_set = get_stems (new_recipe)
-		inter_exclu = excluded_ingredients_set.intersection (recipe_ingredients_set)
-		inter_inclu = included_ingredients_set.intersection (recipe_ingredients_set)
-
-		### we want inter_exclu to be empty and inter_inclu to be nonempty
-		if len(included_ingredients)==0:
-			filter_vec[i] = (len(inter_exclu) == 0)
-		else:
-			filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) == len(included_ingredients))
-	return filter_vec
-
-
-#return flavor matrix that has 0's for recipes that exclude or 1's if include the query ingredient
-def filter_clude_ingr(query, restrictions):
-	filtered_flav_mat = np.copy(flav_mat)
-	filter_vec = np.multiply(exclude_recipe(query), exclude_recipe_restriction(restrictions))
-	filtered_flav_mat = filter_vec*filtered_flav_mat
-	return filtered_flav_mat
-
-
-#return dish with new field rating containing social feedback scrapped from source url
-def add_rating(dish):
-	dish["rating"] = parser(dish["sourceUrl"])
-	return dish
-
-
-#####################################################################################################################
-#Helpers for labels that are pre built in
-
-def isLactoOvoVegatarian(dish):
-	return 'lacto ovo vegetarian' in dish['diets']
-def isGlutenFree(dish):
-	return dish['glutenFree']
-
-def isVegetarian(dish):
-	return dish['vegetarian']
-
-def isKetogenic(dish):
-	return dish['ketogenic']
-
-def isDairyFree(dish):
-	return dish['dairyFree']
-
-def isVegan(dish):
-	return dish['vegan']
-
-def isPescatarian(dish):
-	return 'pescatarian' in dish['diets']
-
-#Major Food Groups
-# NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products.
-
-dairy = set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
-             'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
-
-shellfish = set(['crawfish', 'clams', 'cuttlefish', 'mussels', 'octopus', 'oysters', 'sea urchin', 'scallops',
-                 'snails', 'escargot', 'squid', 'calamari', 'krill', 'shrimp', 'scampi', 'prawns','lobster',
-                 'abalone', 'geoduck', 'crayfish', 'crab'])
-
-fish = set(['anchovies', 'anchovy', 'bass', 'catfish', 'cod', 'flounder', 'grouper', 'haddock', 'hake', 'halibut', 'herring', 'mahi mahi',
-            'perch', 'pike', 'pollock', 'salmon', 'lox', 'scrod', 'sole', 'snapper', 'swordfish', 'red snapper',
-            'tilapia', 'trout', 'tuna', 'fish oil', 'caesar dressing', 'imitation crab', 'worcestershire sauce', 'barbecue sauce'])
-
-treeNuts = set(['almond', 'almond', 'almond butter', 'beechnut', 'brazil nut', 'butternut', 'cashew', 'chestnut', 'chinquapin nut',
-                'coconut', 'hazelnut', 'filbert', 'gianduja', 'nutella', 'ginkgo nut', 'hickory nut', 'litchi', 'lichee', 'lychee',
-                'macadamia nut', 'marzipan', 'almond paste', 'nangai nut', 'nut meal', 'nut meat', 'almond milk', 'cashew milk',
-                'walnut oil', 'almond oil', 'pecan', 'pesto', 'pine nut', 'praline', 'pistachio', 'walnut','argan oil'])
-
-egg = set(['abumin', 'albumen', 'egg', 'egg white', 'egg yolk', 'eggnog', 'mayonnaise', 'meringue', 'surimi', 'ovalbumin'])
-
-peanuts = set(['peanut', 'peanut butter', 'peanut oil', 'goobers','lupin', 'monkey nuts', 'peanut flour', 'lupine'])
-
-wheat = set(['bread crumbs', 'bulgur', 'cereal extract', 'club wheat', 'couscous', 'cracker meal', 'cracker meal',
-             'durum', 'einkorn', 'emmer', 'farina', 'flour', 'matzoh', 'matzo', 'matzah', 'matza', 'wheat germ oil',
-             'wheat grass', 'ale', 'beer'])
-
-soy = set(['soy oil', 'edamame', 'miso', 'shoyu', 'soya', 'soy sauce', 'tamari', 'tempeh', 'tofu', 'soybean'])
-
-sesame = set(['benne', 'benne seed', 'benniseed', 'gingelly', 'gingelly oil', 'sesame salt', 'gomasio', 'halvah', 'sesame flour', 'sesame oil', 'sesame paste',
-              'sesame seed', 'sesamol', 'sesamum indicum', 'sim sim', 'tahini', 'tahina', 'tehina', 'til'])
-
-pork = set(['bacon', 'chorizo', 'ground pork', 'pork belly', 'panchetta', 'prosciutto', 'ham',
-            'serrano', 'spam', 'liverwurst', 'mortadella', 'blood sausage', 'spare ribs', 'pork tenderloin',
-           'pork shoulder'])
-
-wild_meat = set(['rabbit','boar','elk','buffalo','bison','frog'])
-
-beef = set(['beef tartar', 'beef', 'steak', 'ribeye', 'corned beef', 'pastrami', 'roast beef',
-            'sirloin', 'tenderloin', 'filet mignon', 'round', 'brisket', 'prime rib', 'short rib'
-            ,'chuck roast', 'chuck steak', 'beef shank', 'skirt', 'skirt steak', 'strip steak'])
-
-alcohol = set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka', 'wiskey', 'scotch',
-               'tequila', 'moon shine', 'red wine', 'white wine', 'rose', 'absinthe', 'sake'
-               , 'soju', 'rice wine', 'liquer','spirit', 'bourbon'])
-
-
-
-restriction_dict = {"alcohol" : alcohol,
-					"beef" : beef,
-					"dairy" : dairy,
-					"egg" : egg,
-					"fish" : fish,
-					#"gluten" : ,
-					"halal" : pork | alcohol,
-					#"ketogenic" :,
-					#"kosher" :,
-					#"lactoovo": ,
-					"pork" : pork,
-					"peanut" : peanuts,
-					#"pescatarian": ,
-					"sesame" : sesame,
-					"shellfish" : shellfish,
-					"soy" : soy,
-					"treenuts" : treeNuts,
-					#"vegan" :,
-					#"vegetarian" :,
-					"wheat" : wheat}
-
-
-
-def is_free_of(dish, restriction_set):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	tokened_ingredients = tokenize_ingredients (recipe_ingredients, stop)
-	ingr = get_stems(tokened_ingredients)
-	for elt in ingr:
-		if elt in restriction_set:
-			return False
-	return True
-
-
-def is_kosher(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	tokened_ingredients = tokenize_ingredients (recipe_ingredients, stop)
-	ingr = get_stems(tokened_ingredients)
-	beef_check = False
-	for elt in ingr:
-		if elt in beef:
-			beef_check = True
-		if elt in kosher:
-			 return False
-	return (not beef_check or is_free_of(dish, dairy))
-	#if beef_check == true and is_free_of(dish, dairy) == false:
-	#	return false
-	#return true
-
-def exclude_recipe_restriction (restriction_strings):
-	filter_vec = np.zeros((len(raw), 1))
-	rest_free = ['gluten', 'dairy']
-	other_rec_flag = ['vegetarian', 'ketogenic', 'vegan']
-	for i in range(len(raw)):
-		dish = raw[i]
-		include_flag = True
-		for restriction in restriction_strings:
-			if restriction in rest_free:
-				include_flag = include_flag and dish[restriction+'Free']
-			elif restriction in other_rec_flag:
-				include_flag = include_flag and dish[restriction]
-			elif restriction == 'lactoovo':
-				include_flag = include_flag and ('lacto ovo vegetarian' in dish['diets'])
-			elif restriction == 'pescatarian':
-				include_flag = include_flag and ('pescatarian' in dish['diets'])
-			elif restriction == 'kosher':
-				include_flag = include_flag and is_kosher(dish)
-			else:
-				include_flag = include_flag and is_free_of(dish, restriction_dict[restriction])
-		filter_vec[i] = int(include_flag)
-	return filter_vec
-
-##############################################
-
-
-
-def is_halal(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in pork:
-			return false
-		if elt in alcohol:
-			return false
-	return true
-
-def isTreeNutFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in treeNuts:
-			return false
-	return true
-
-
-def isShellFishFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in shellfish:
-			return false
-	return true
-
-def isFishFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in fish:
-			return false
-	return true
-
-def isEggFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in egg:
-			return false
-	return true
-
-def isPeanutFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in peanuts:
-			return false
-	return true
-
-def isWheatFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in wheat:
-			return false
-	return true
-
-def isSoyFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in soy:
-			return false
-	return true
-
-def isSesameFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in sesame:
-			return false
-	return true
-
-def isPorkFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in pork:
-			return false
-	return true
-
-def isBeefFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in beef:
-			return false
-	return true
-
-def isAlcoholFree(dish):
-	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
-	ingr = get_stems(recipe_ingredients)
-	for elt in ingr:
-		if elt in alcohol:
-			return false
-	return true
-
-def parser(web_page):
-    first_index = web_page.find('.')
-    second_index = web_page.find('.',first_index+1)
-    web = web_page[first_index+1:second_index]
-    if web == "allrecipes":
-        return review_parser_allrecipes(web_page)
-    elif web =="foodnetwork":
-        return review_parser_foodnetwork(web_page)
-    else:
-        return -1 #probably just return the spoontacular score
-
-
-def review_parser_allrecipes(web_page): #returns the star_rating out of five as a float for the site all recipes
-    page = requests.get(web_page)
-    formatted = BeautifulSoup(page.content, 'html.parser')
-    rating_box = formatted.find('div', attrs={'class':'rating-stars'})
-    rating = rating_box.get('data-ratingstars')
-    try:
-        return float(rating)
-    except ValueError:
-        return -1
-
-
-def review_parser_foodnetwork(web_page): #returns star_rating for foodnetwork
-    page = requests.get(web_page)
-    formatted = BeautifulSoup(page.content, 'html.parser')
-    rating_box = formatted.find('script',attrs={'type':'application/ld+json'})
-    rating = json.loads(rating_box.text)
-    try:
-        return rating["aggregateRating"]["ratingValue"]
-    except ValueError:
-        return -10
-
 annotatedDict = {"button mushrooms" : { "umami" : 8, "bitter" : 2, "sour" : 1, "salty": 1, "sweet" : 1 },
 			 "poppy seeds" : { "umami" : 1, "bitter" : 2, "sour" : 1, "salty": 2, "sweet" : 3 },
 			 "low sodium chicken stock" : { "umami" : 6, "bitter" : 1, "sour" : 1, "salty": 4, "sweet" : 2 },
@@ -994,6 +618,381 @@ annotatedDict = {"button mushrooms" : { "umami" : 8, "bitter" : 2, "sour" : 1, "
 			 "breadcrumbs": { "umami" : 1, "bitter" : 1, "sour" : 1, "salty": 2, "sweet" : 1 },
 			 "flat-leaf parsley": { "umami" : 1, "bitter" : 2, "sour" : 1, "salty": 1, "sweet" : 1 },
 			 }
+#precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
+#takes in np array of np array containing flavor profile, and returns a ranked list of indices
+def cos_sim_flavor(flavors, mat):
+	lst = np.dot(mat,flavors)
+	scores = np.divide(lst, 1.0*flav_norms)
+	first_zero_elt = np.count_nonzero(scores)
+	return np.ndarray.tolist(np.argsort(-scores))[:first_zero_elt]
+
+#def edit_distance (ingredient, database_res):
+#	return Levenshtein.distance(ingredient.lower(), database_res.lower())
+
+#def edit_distance_search (query, ingredients):
+#	List = []
+#	for i in ingredients:
+#		tupl = (edit_distance(query, i["text"]),i)
+#		List.append(tupl)
+#	sortedList = sorted(List, key=lambda tup: tup[0])
+#	return sortedList
+
+#returns list of strings which contain substring. Unoptimized
+def substr_match (query, list_of_words):
+	length = len(query)
+	List = []
+	for i in list_of_words:
+		if i[:length] == query:
+			List.append(i)
+	return List
+
+""" tokenize_ingredients takes in a list of ingredients and tokenizes them
+	by the spaces and returns a set of the tokenized ingredients, excluding
+	stop words.
+	Example: ["zest of lemon", "zest of lime"] would return
+	["zest", "lemon", "lime"]
+"""
+def tokenize_ingredients (ingredients, stop_words):
+	List = []
+	for i in ingredients:
+		tokens = re.findall("[^\s]+", i)
+		#print (tokens)
+		for j in tokens:
+			if j not in stop_words:
+				List.append (j)
+	return set(List)
+
+""" get_stems takes in a list of ingredients and stems them
+	using PorterStemmer
+"""
+def get_stems(ingredients):
+	ingredientsSet = set ()
+	for w in ingredients:
+		#w = w.replace (" ", "")
+		ingredientsSet.add (stemmer.stem (w.lower()))
+	#print (ingredientsSet)
+	return ingredientsSet
+
+""" exclude_recipe takes in a list tuples (ingredients, bool) (where bool = true if include, false if exclude)
+ and the recipe_ingredients and returns a boolean vector representing
+ whether the excluded / included ingredients are found in the recipe.
+"""
+def exclude_recipe (ingredients_tuples):
+	filter_vec = np.zeros((len(raw), 1))
+	excluded_ingredients = [ingr for (ingr, incl) in ingredients_tuples if not incl]
+	included_ingredients = [ingr for (ingr, incl) in ingredients_tuples if incl]
+	print(included_ingredients)
+	new_exclu = tokenize_ingredients (excluded_ingredients, stop)
+	new_inclu = tokenize_ingredients(included_ingredients, stop)
+	excluded_ingredients_set = get_stems (new_exclu)
+	#included_ingredients_set = get_stems(new_inclu)
+	included_ingredients_set = get_stems(included_ingredients)
+	for i in range(len(raw)):
+		recipe_ingredients = [ingr['name'] for ingr in raw[i]['extendedIngredients']]
+		new_recipe = tokenize_ingredients (recipe_ingredients, stop)
+		recipe_ingredients_set = get_stems (new_recipe)
+		inter_exclu = excluded_ingredients_set.intersection (recipe_ingredients_set)
+		inter_inclu = included_ingredients_set.intersection (recipe_ingredients_set)
+
+		### we want inter_exclu to be empty and inter_inclu to be nonempty
+		if len(included_ingredients)==0:
+			filter_vec[i] = (len(inter_exclu) == 0)
+		else:
+			filter_vec[i] = (len(inter_exclu) == 0 and len(inter_inclu) == len(included_ingredients))
+	return filter_vec
+
+
+#return flavor matrix that has 0's for recipes that exclude or 1's if include the query ingredient
+def filter_clude_ingr(query, restrictions):
+	filtered_flav_mat = np.copy(flav_mat)
+	filter_vec = np.multiply(exclude_recipe(query), exclude_recipe_restriction(restrictions))
+	filtered_flav_mat = filter_vec*filtered_flav_mat
+	return filtered_flav_mat
+
+
+#return dish with new field rating containing social feedback scrapped from source url
+def add_rating(dish):
+	dish["rating"] = parser(dish["sourceUrl"])
+	return dish
+
+
+#####################################################################################################################
+#Helpers for labels that are pre built in
+
+def isLactoOvoVegatarian(dish):
+	return 'lacto ovo vegetarian' in dish['diets']
+def isGlutenFree(dish):
+	return dish['glutenFree']
+
+def isVegetarian(dish):
+	return dish['vegetarian']
+
+def isKetogenic(dish):
+	return dish['ketogenic']
+
+def isDairyFree(dish):
+	return dish['dairyFree']
+
+def isVegan(dish):
+	return dish['vegan']
+
+def isPescatarian(dish):
+	return 'pescatarian' in dish['diets']
+
+#Major Food Groups
+# NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products.
+
+dairy = set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
+             'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
+
+shellfish = set(['crawfish', 'clams', 'cuttlefish', 'mussels', 'octopus', 'oysters', 'sea urchin', 'scallops',
+                 'snails', 'escargot', 'squid', 'calamari', 'krill', 'shrimp', 'scampi', 'prawns','lobster',
+                 'abalone', 'geoduck', 'crayfish', 'crab'])
+
+fish = set(['anchovies', 'anchovy', 'bass', 'catfish', 'cod', 'flounder', 'grouper', 'haddock', 'hake', 'halibut', 'herring', 'mahi mahi',
+            'perch', 'pike', 'pollock', 'salmon', 'lox', 'scrod', 'sole', 'snapper', 'swordfish', 'red snapper',
+            'tilapia', 'trout', 'tuna', 'fish oil', 'caesar dressing', 'imitation crab', 'worcestershire sauce', 'barbecue sauce'])
+
+treeNuts = set(['almond', 'almond', 'almond butter', 'beechnut', 'brazil nut', 'butternut', 'cashew', 'chestnut', 'chinquapin nut',
+                'coconut', 'hazelnut', 'filbert', 'gianduja', 'nutella', 'ginkgo nut', 'hickory nut', 'litchi', 'lichee', 'lychee',
+                'macadamia nut', 'marzipan', 'almond paste', 'nangai nut', 'nut meal', 'nut meat', 'almond milk', 'cashew milk',
+                'walnut oil', 'almond oil', 'pecan', 'pesto', 'pine nut', 'praline', 'pistachio', 'walnut','argan oil'])
+
+egg = set(['abumin', 'albumen', 'egg', 'egg white', 'egg yolk', 'eggnog', 'mayonnaise', 'meringue', 'surimi', 'ovalbumin'])
+
+peanuts = set(['peanut', 'peanut butter', 'peanut oil', 'goobers','lupin', 'monkey nuts', 'peanut flour', 'lupine'])
+
+wheat = set(['bread crumbs', 'bulgur', 'cereal extract', 'club wheat', 'couscous', 'cracker meal', 'cracker meal',
+             'durum', 'einkorn', 'emmer', 'farina', 'flour', 'matzoh', 'matzo', 'matzah', 'matza', 'wheat germ oil',
+             'wheat grass', 'ale', 'beer'])
+
+soy = set(['soy oil', 'edamame', 'miso', 'shoyu', 'soya', 'soy sauce', 'tamari', 'tempeh', 'tofu', 'soybean'])
+
+sesame = set(['benne', 'benne seed', 'benniseed', 'gingelly', 'gingelly oil', 'sesame salt', 'gomasio', 'halvah', 'sesame flour', 'sesame oil', 'sesame paste',
+              'sesame seed', 'sesamol', 'sesamum indicum', 'sim sim', 'tahini', 'tahina', 'tehina', 'til'])
+
+pork = set(['bacon', 'chorizo', 'ground pork', 'pork belly', 'panchetta', 'prosciutto', 'ham',
+            'serrano', 'spam', 'liverwurst', 'mortadella', 'blood sausage', 'spare ribs', 'pork tenderloin',
+           'pork shoulder'])
+
+wild_meat = set(['rabbit','boar','elk','buffalo','bison','frog'])
+
+beef = set(['beef tartar', 'beef', 'steak', 'ribeye', 'corned beef', 'pastrami', 'roast beef',
+            'sirloin', 'tenderloin', 'filet mignon', 'round', 'brisket', 'prime rib', 'short rib'
+            ,'chuck roast', 'chuck steak', 'beef shank', 'skirt', 'skirt steak', 'strip steak'])
+
+alcohol = set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka', 'wiskey', 'scotch',
+               'tequila', 'moon shine', 'red wine', 'white wine', 'rose', 'absinthe', 'sake'
+               , 'soju', 'rice wine', 'liquer','spirit', 'bourbon'])
+
+
+
+restriction_dict = {"alcohol" : alcohol,
+					"beef" : beef,
+					"dairy" : dairy,
+					"egg" : egg,
+					"fish" : fish,
+					#"gluten" : ,
+					"halal" : pork | alcohol,
+					#"ketogenic" :,
+					#"kosher" :,
+					#"lactoovo": ,
+					"pork" : pork,
+					"peanut" : peanuts,
+					#"pescatarian": ,
+					"sesame" : sesame,
+					"shellfish" : shellfish,
+					"soy" : soy,
+					"treenuts" : treeNuts,
+					#"vegan" :,
+					#"vegetarian" :,
+					"wheat" : wheat}
+
+
+
+def is_free_of(dish, restriction_set):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	tokened_ingredients = tokenize_ingredients (recipe_ingredients, stop)
+	ingr = get_stems(tokened_ingredients)
+	for elt in ingr:
+		if elt in restriction_set:
+			return False
+	return True
+
+
+def is_kosher(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	tokened_ingredients = tokenize_ingredients (recipe_ingredients, stop)
+	ingr = get_stems(tokened_ingredients)
+	beef_check = False
+	for elt in ingr:
+		if elt in beef:
+			beef_check = True
+		if elt in kosher:
+			 return False
+	return (not beef_check or is_free_of(dish, dairy))
+	#if beef_check == true and is_free_of(dish, dairy) == false:
+	#	return false
+	#return true
+
+def exclude_recipe_restriction (restriction_strings):
+	filter_vec = np.zeros((len(raw), 1))
+	rest_free = ['gluten', 'dairy']
+	other_rec_flag = ['vegetarian', 'ketogenic', 'vegan']
+	for i in range(len(raw)):
+		dish = raw[i]
+		include_flag = True
+		for restriction in restriction_strings:
+			if restriction in rest_free:
+				include_flag = include_flag and dish[restriction+'Free']
+			elif restriction in other_rec_flag:
+				include_flag = include_flag and dish[restriction]
+			elif restriction == 'lactoovo':
+				include_flag = include_flag and ('lacto ovo vegetarian' in dish['diets'])
+			elif restriction == 'pescatarian':
+				include_flag = include_flag and ('pescatarian' in dish['diets'])
+			elif restriction == 'kosher':
+				include_flag = include_flag and is_kosher(dish)
+			else:
+				include_flag = include_flag and is_free_of(dish, restriction_dict[restriction])
+		filter_vec[i] = int(include_flag)
+	return filter_vec
+
+##############################################
+
+
+
+def is_halal(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in pork:
+			return false
+		if elt in alcohol:
+			return false
+	return true
+
+def isTreeNutFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in treeNuts:
+			return false
+	return true
+
+
+def isShellFishFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in shellfish:
+			return false
+	return true
+
+def isFishFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in fish:
+			return false
+	return true
+
+def isEggFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in egg:
+			return false
+	return true
+
+def isPeanutFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in peanuts:
+			return false
+	return true
+
+def isWheatFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in wheat:
+			return false
+	return true
+
+def isSoyFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in soy:
+			return false
+	return true
+
+def isSesameFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in sesame:
+			return false
+	return true
+
+def isPorkFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in pork:
+			return false
+	return true
+
+def isBeefFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in beef:
+			return false
+	return true
+
+def isAlcoholFree(dish):
+	recipe_ingredients = [ingr['name'] for ingr in dish['extendedIngredients']]
+	ingr = get_stems(recipe_ingredients)
+	for elt in ingr:
+		if elt in alcohol:
+			return false
+	return true
+
+def parser(web_page):
+    first_index = web_page.find('.')
+    second_index = web_page.find('.',first_index+1)
+    web = web_page[first_index+1:second_index]
+    if web == "allrecipes":
+        return review_parser_allrecipes(web_page)
+    elif web =="foodnetwork":
+        return review_parser_foodnetwork(web_page)
+    else:
+        return -1 #probably just return the spoontacular score
+
+
+def review_parser_allrecipes(web_page): #returns the star_rating out of five as a float for the site all recipes
+    page = requests.get(web_page)
+    formatted = BeautifulSoup(page.content, 'html.parser')
+    rating_box = formatted.find('div', attrs={'class':'rating-stars'})
+    rating = rating_box.get('data-ratingstars')
+    try:
+        return float(rating)
+    except ValueError:
+        return -1
+
+
+def review_parser_foodnetwork(web_page): #returns star_rating for foodnetwork
+    page = requests.get(web_page)
+    formatted = BeautifulSoup(page.content, 'html.parser')
+    rating_box = formatted.find('script',attrs={'type':'application/ld+json'})
+    rating = json.loads(rating_box.text)
+    try:
+        return rating["aggregateRating"]["ratingValue"]
+    except ValueError:
+        return -10
 
 def find_missing (lst, annotated):
 	for i in lst:
