@@ -20,101 +20,9 @@ net_ids = "Robert Li: rl597, Seraphina Lee: el542, Frank Li: fl338, Steven Ye: x
 
 
 #######populating flavor values
-import re
 #from annotated import annotatedDict
 #import units
 #import ml_model
-
-with open('aggreg.json') as json_data:
-	raw = json.load(json_data)[:3000]
-with open('all_ingrs.json') as json_data:
-	all_ingrs = json.load(json_data)
-
-ingr_inv_index = {}
-all_ingrs_lst = []
-i=0
-for ingr in all_ingrs:
-	all_ingrs_lst.append(ingr)
-	ingr_inv_index[ingr] = i
-	i += 1
-
-
-flav_mat = np.zeros((len(raw), 5))
-flav_norms = np.zeros(len(raw))
-ingr_mat = np.zeros((len(raw), len(all_ingrs)))
-
-#ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
-topic_profs = np.load('topic_profs.npy')
-#topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
-model_components = np.load('model_components.npy')
-cv_vocabulary = np.load('cv_vocabulary.npy').item()
-
-
-def ingr_to_topic_prof(ingr, model_components, topic_profs):
-	return topic_profs[np.argmax(model_components[:, cv_vocabulary[ingr]])]
-
-#makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
-# flav_norms (vector with the norms of each row of the flav_mat)
-# ingr_mat (recipe x ingredient matrix that has 1 if the recipe contains that ingredient)
-for i in range(len(raw)):
-	flav_prof = np.array([0,0,0,0,0])
-	for j in range(len(raw[i]['extendedIngredients'])):
-		ingr = raw[i]['extendedIngredients'][j]
-		amount = ingr['amount']
-		unit = ingr['unit'] #need to map them to proportional weights later (e.g. 1 lb = 16 oz)
-		name = ingr['name']
-		if name in annotatedDict:
-			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
-			flav_prof = np.add(flav_prof, (amount*unit_weights(unit))*np.array(flav_lst))
-		else:
-			###call ml_model and get topic-estimated flavor prof
-			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
-		ingr_mat[i,ingr_inv_index[name]] = 1
-	if np.max(flav_prof) == 0:
-		flav_prof = np.array([1,1,1,1,1])
-	flav_mat[i,:] = 10*((1.0*flav_prof)/np.max(flav_prof))
-	flav_norms[i] = np.linalg.norm(flav_mat[i])
-
-
-#######
-
-@irsystem.route('/', methods=['GET'])
-def search():
-	try:
-		print(request.args)
-		query = request.args.get('search')
-		sweet = int(request.args.get('sweet'))
-		salty = int(request.args.get('salty'))
-		sour = int(request.args.get('sour'))
-		bitter = int(request.args.get('bitter'))
-		umami = int(request.args.get('umami'))
-		restrictions = request.args.getlist('restrictions')
-		print(restrictions)
-		flavors = np.array([sweet, salty, sour, bitter, umami])
-		if np.max(flavors) == 0:
-			flav_prof = np.array([1,1,1,1,1])
-		query = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
-		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, restrictions))]
-		output_message = "Your search returned " + str(len(data)) + " results."
-	except TypeError:
-		data = []
-		query = []
-		restrictions = []
-		output_message = ''
-		sweet = salty = sour = bitter = umami = 0
-	return render_template('search.html', name=project_name,
-		                                  netid=net_ids,
-		                                  ingrs=all_ingrs_lst,
-		                                  data=data,
-		                                  query=query,
-		                                  sweet=sweet,
-		                                  salty=salty,
-		                                  sour=sour,
-		                                  bitter=bitter,
-		                                  umami=umami,
-		                                  restrictions=restrictions,
-		                                  output_message=output_message)
-
 
 annotatedDict = {"button mushrooms" : { "umami" : 8, "bitter" : 2, "sour" : 1, "salty": 1, "sweet" : 1 },
 			 "poppy seeds" : { "umami" : 1, "bitter" : 2, "sour" : 1, "salty": 2, "sweet" : 3 },
@@ -618,6 +526,96 @@ annotatedDict = {"button mushrooms" : { "umami" : 8, "bitter" : 2, "sour" : 1, "
 			 "breadcrumbs": { "umami" : 1, "bitter" : 1, "sour" : 1, "salty": 2, "sweet" : 1 },
 			 "flat-leaf parsley": { "umami" : 1, "bitter" : 2, "sour" : 1, "salty": 1, "sweet" : 1 },
 			 }
+
+with open('aggreg.json') as json_data:
+	raw = json.load(json_data)[:3000]
+with open('all_ingrs.json') as json_data:
+	all_ingrs = json.load(json_data)
+
+ingr_inv_index = {}
+all_ingrs_lst = []
+i=0
+for ingr in all_ingrs:
+	all_ingrs_lst.append(ingr)
+	ingr_inv_index[ingr] = i
+	i += 1
+
+
+flav_mat = np.zeros((len(raw), 5))
+flav_norms = np.zeros(len(raw))
+ingr_mat = np.zeros((len(raw), len(all_ingrs)))
+
+#ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
+topic_profs = np.load('topic_profs.npy')
+#topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
+model_components = np.load('model_components.npy')
+cv_vocabulary = np.load('cv_vocabulary.npy').item()
+
+
+def ingr_to_topic_prof(ingr, model_components, topic_profs):
+	return topic_profs[np.argmax(model_components[:, cv_vocabulary[ingr]])]
+
+#makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
+# flav_norms (vector with the norms of each row of the flav_mat)
+# ingr_mat (recipe x ingredient matrix that has 1 if the recipe contains that ingredient)
+for i in range(len(raw)):
+	flav_prof = np.array([0,0,0,0,0])
+	for j in range(len(raw[i]['extendedIngredients'])):
+		ingr = raw[i]['extendedIngredients'][j]
+		amount = ingr['amount']
+		unit = ingr['unit'] #need to map them to proportional weights later (e.g. 1 lb = 16 oz)
+		name = ingr['name']
+		if name in annotatedDict:
+			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
+			flav_prof = np.add(flav_prof, (amount*unit_weights(unit))*np.array(flav_lst))
+		else:
+			###call ml_model and get topic-estimated flavor prof
+			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
+		ingr_mat[i,ingr_inv_index[name]] = 1
+	if np.max(flav_prof) == 0:
+		flav_prof = np.array([1,1,1,1,1])
+	flav_mat[i,:] = 10*((1.0*flav_prof)/np.max(flav_prof))
+	flav_norms[i] = np.linalg.norm(flav_mat[i])
+
+
+#######
+
+@irsystem.route('/', methods=['GET'])
+def search():
+	try:
+		print(request.args)
+		query = request.args.get('search')
+		sweet = int(request.args.get('sweet'))
+		salty = int(request.args.get('salty'))
+		sour = int(request.args.get('sour'))
+		bitter = int(request.args.get('bitter'))
+		umami = int(request.args.get('umami'))
+		restrictions = request.args.getlist('restrictions')
+		print(restrictions)
+		flavors = np.array([sweet, salty, sour, bitter, umami])
+		if np.max(flavors) == 0:
+			flav_prof = np.array([1,1,1,1,1])
+		query = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
+		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, restrictions))]
+		output_message = "Your search returned " + str(len(data)) + " results."
+	except TypeError:
+		data = []
+		query = []
+		restrictions = []
+		output_message = ''
+		sweet = salty = sour = bitter = umami = 0
+	return render_template('search.html', name=project_name,
+		                                  netid=net_ids,
+		                                  ingrs=all_ingrs_lst,
+		                                  data=data,
+		                                  query=query,
+		                                  sweet=sweet,
+		                                  salty=salty,
+		                                  sour=sour,
+		                                  bitter=bitter,
+		                                  umami=umami,
+		                                  restrictions=restrictions,
+		                                  output_message=output_message)
 
 smallest = ["pinch", "pinches", "gram",  "mL", "grams", "g", "ml",  "gr", "gm", "dash", "Dash", "dashes",  "Gram"]
 spoon = ["teaspoons", "tablespoon", "teaspoon", "tablespoons", "tsp", "Tb", "tbsp", "Tablespoon",
