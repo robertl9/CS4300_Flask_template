@@ -7,6 +7,8 @@ ADD app.py /service/app.py
 ADD config.py /service/config.py
 ADD manage.py /service/manage.py
 ADD requirements.txt /service/requirements.txt
+ADD aggreg.json /service/aggreg.json
+ADD all_ingrs.json /service/all_ingrs.json
 WORKDIR /service/
 RUN pip install -r requirements.txt
 RUN python -m nltk.downloader stopwords
