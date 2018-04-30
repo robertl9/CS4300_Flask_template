@@ -65,7 +65,7 @@ for i in range(len(raw)):
 		name = ingr['name']
 		if name in annotatedDict:
 			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
-			flav_prof = np.add(flav_prof, (amount*units.unit_weights(unit))*np.array(flav_lst))
+			flav_prof = np.add(flav_prof, (amount*unit_weights(unit))*np.array(flav_lst))
 		else:
 			###call ml_model and get topic-estimated flavor prof
 			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
@@ -618,6 +618,25 @@ annotatedDict = {"button mushrooms" : { "umami" : 8, "bitter" : 2, "sour" : 1, "
 			 "breadcrumbs": { "umami" : 1, "bitter" : 1, "sour" : 1, "salty": 2, "sweet" : 1 },
 			 "flat-leaf parsley": { "umami" : 1, "bitter" : 2, "sour" : 1, "salty": 1, "sweet" : 1 },
 			 }
+
+smallest = ["pinch", "pinches", "gram",  "mL", "grams", "g", "ml",  "gr", "gm", "dash", "Dash", "dashes",  "Gram"]
+spoon = ["teaspoons", "tablespoon", "teaspoon", "tablespoons", "tsp", "Tb", "tbsp", "Tablespoon",
+	"Teaspoon", "T", "t", "Tbsp", "Tbs", "Tablespoons", "tsps", "Tsp","Teaspoons", "tbsps", "TB", "Tbsps"]
+cup = ["cup", "cups", "c", "C", "Cup", "Cups"]
+pint = ["pint", "pints", "pt"]
+small = ["ounces", "oz", "ounce", "fl. oz.", "ozs", "fluid ounces", "Oz"]
+bigger = ["pounds", "lb", "pound", "lbs", "kg", "Pound", "Pounds", "quarts", "quart", "l", "liters", "L", "liter"]
+length = ["9-inch", "7-inch", "3-inch", "6-inch", "2-inch", "4-inch", "10-inch", "8 inch", "inches", "8-inch","inch"]
+biggest = ["gallon"]
+
+units_lst = [(smallest, 0.1), (spoon, 1), (cup, 1), (pint, 4), (small, 0.2), (bigger, 8), (length, 0.5), (biggest, 16)]
+
+
+def unit_weights(unit):
+	for (lst, weight) in units_lst:
+		if unit in lst:
+			return weight
+	return 1
 #precompute flavor matrix (recipe x flavor) + docnorms (recipe x norm)
 #takes in np array of np array containing flavor profile, and returns a ranked list of indices
 def cos_sim_flavor(flavors, mat):
@@ -1001,22 +1020,3 @@ def find_missing (lst, annotated):
 
 def get_annotated():
 	return annotatedDict
-
-smallest = ["pinch", "pinches", "gram",  "mL", "grams", "g", "ml",  "gr", "gm", "dash", "Dash", "dashes",  "Gram"]
-spoon = ["teaspoons", "tablespoon", "teaspoon", "tablespoons", "tsp", "Tb", "tbsp", "Tablespoon",
-	"Teaspoon", "T", "t", "Tbsp", "Tbs", "Tablespoons", "tsps", "Tsp","Teaspoons", "tbsps", "TB", "Tbsps"]
-cup = ["cup", "cups", "c", "C", "Cup", "Cups"]
-pint = ["pint", "pints", "pt"]
-small = ["ounces", "oz", "ounce", "fl. oz.", "ozs", "fluid ounces", "Oz"]
-bigger = ["pounds", "lb", "pound", "lbs", "kg", "Pound", "Pounds", "quarts", "quart", "l", "liters", "L", "liter"]
-length = ["9-inch", "7-inch", "3-inch", "6-inch", "2-inch", "4-inch", "10-inch", "8 inch", "inches", "8-inch","inch"]
-biggest = ["gallon"]
-
-units_lst = [(smallest, 0.1), (spoon, 1), (cup, 1), (pint, 4), (small, 0.2), (bigger, 8), (length, 0.5), (biggest, 16)]
-
-
-def unit_weights(unit):
-	for (lst, weight) in units_lst:
-		if unit in lst:
-			return weight
-	return 1
