@@ -341,13 +341,13 @@ def exclude_recipe_restriction (restriction_strings):
 		for restriction in restriction_strings:
 			if restriction in rest_free:
 				include_flag = include_flag and dish[restriction+'Free']
-			if restriction in other_rec_flag:
+			elif restriction in other_rec_flag:
 				include_flag = include_flag and dish[restriction]
-			if restriction == 'lactoovo':
+			elif restriction == 'lactoovo':
 				include_flag = include_flag and ('lacto ovo vegetarian' in dish['diets'])
-			if restriction == 'pescatarian':
+			elif restriction == 'pescatarian':
 				include_flag = include_flag and ('pescatarian' in dish['diets'])
-			if restriction == 'kosher':
+			elif restriction == 'kosher':
 				include_flag = include_flag and is_kosher(dish)
 			else:
 				include_flag = include_flag and is_free_of(dish, restriction_dict[restriction])
