@@ -9,4 +9,5 @@ ADD manage.py /service/manage.py
 ADD requirements.txt /service/requirements.txt
 WORKDIR /service/
 RUN pip install -r requirements.txt
+RUN python -m nltk.downloader stopwords
 CMD python -u app.py $APP_SETTINGS $DATABASE_URL
