@@ -68,18 +68,9 @@
           <option value="vegetarian">Vegetarian</option>
           <option value="wheat">Wheat free</option>
         </select>
-        <script>
-          $("#restrictions").multiselect({
-            dropUp: true,
-            maxHeight: 200,
-            numberDisplayed: 4,
-            buttonWidth: "450px",
-            buttonClass: "btn btn-default",
-            nonSelectedText: "Select restrictions (optional)"
-          });
-        </script>
+        <script> multiselect($("#restrictions"), {{restrictions|tojson}}); </script>
       </div>
-      <button type="submit" class="btn btn-primary btn-lg">Explore</button>
+      <button type="submit" class="btn btn-primary">Explore</button>
     </form>
     <div id="outputs">
       <div id="template" class="panel panel-info dish-panel" style="display: none;">
@@ -105,8 +96,8 @@
           </div>
         </div>
       </div>
+      <p>{{output_message}}</p>
       {% if data %}
-        <p>{{output_message}}</p>
         <div id="alert-show" class="alert alert-info" role="alert" style="display: none;">Show more results</div>
         <div id="alert-end" class="alert alert-danger" role="alert" style="display: none;">End of results</div>
         <script> showResults($("#template"), {{data|tojson}}, 5); </script>

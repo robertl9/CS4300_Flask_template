@@ -95,10 +95,11 @@ def search():
 			flav_prof = np.array([1,1,1,1,1])
 		query = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
 		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, restrictions))]
-		output_message = "Your search returned " + str(len(data)) + " results:"
+		output_message = "Your search returned " + str(len(data)) + " results."
 	except TypeError:
 		data = []
 		query = []
+		restrictions = []
 		output_message = ''
 		sweet = salty = sour = bitter = umami = 0
 	return render_template('search.html', name=project_name,
@@ -111,6 +112,7 @@ def search():
 		                                  sour=sour,
 		                                  bitter=bitter,
 		                                  umami=umami,
+		                                  restrictions=restrictions,
 		                                  output_message=output_message)
 
 

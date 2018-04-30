@@ -82,6 +82,21 @@ function autocomplete(inp, otp, arr, tags) {
 
 }
 
+function multiselect(inp, arr) {
+
+  inp.multiselect({
+    dropUp: true,
+    maxHeight: 200,
+    numberDisplayed: 4,
+    buttonWidth: "440px",
+    buttonClass: "btn btn-default",
+    nonSelectedText: "Select restrictions (optional)"
+  });
+
+  inp.multiselect("select", arr);
+
+}
+
 function showResults(temp, data, step) {
 
   let n = 0;
