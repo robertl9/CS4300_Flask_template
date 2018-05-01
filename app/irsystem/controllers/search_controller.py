@@ -804,6 +804,8 @@ alcohol = set(['wine', 'brandy', 'gin', 'beer', 'lager', 'cognac', 'rum', 'vodka
                'tequila', 'moon shine', 'red wine', 'white wine', 'rose', 'absinthe', 'sake'
                , 'soju', 'rice wine', 'liquer','spirit', 'bourbon'])
 
+kosher = wild_meat.intersection(pork.intersection(shellfish))
+
 
 
 restriction_dict = {"alcohol" : alcohol,
