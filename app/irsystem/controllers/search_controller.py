@@ -636,7 +636,7 @@ def search():
 		print(restrictions)
 		flavors = np.array([sweet, salty, sour, bitter, umami])
 		if np.max(flavors) == 0:
-			flav_prof = np.array([1,1,1,1,1])
+			flavors = np.array([1,1,1,1,1])
 		query = [(pair.split('|')[0], bool(int(pair.split('|')[1]))) for pair in query.split(',')[:-1]]
 		data = [raw[i] for i in cos_sim_flavor(flavors, filter_clude_ingr(query, restrictions))]
 		output_message = "Your search returned " + str(len(data)) + " results."
