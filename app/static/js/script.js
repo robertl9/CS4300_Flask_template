@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+  $("#splash").delay(300).fadeOut(1000);
+  $("#submit").on("click", function() {
+    $("#splash").delay(1000).fadeIn(1000);
+  });
+
   $(".bootstrap-tagsinput").on("keypress", function(e) {
     if (e.keyCode == 13){
       e.preventDefault();
