@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>TasteTest</title>
+    <title>{{name}}</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="/static/js/tagsinput/src/bootstrap-tagsinput.js"></script>
@@ -19,6 +19,12 @@
     <link rel="stylesheet" href="/static/css/main.css">
   </head>
   <body>
+    <div id="splash">
+      <h1>{{name}}</h1>
+      <h4>- your preference, our preference -</h4>
+      <img src="/static/assets/loading.gif" alt="loading...">
+    </div>
+    <img id="bkgrd" src="/static/assets/bkgrd.jpg" alt="">
     <form id="inputs" autocomplete="off">
       <h1 id="title">{{name}}</h1>
       <div class="form-row">
@@ -70,7 +76,7 @@
         </select>
         <script> multiselect($("#restrictions"), {{restrictions|tojson}}); </script>
       </div>
-      <button type="submit" class="btn btn-primary">Explore</button>
+      <button id="submit" type="submit" class="btn btn-primary">Explore</button>
     </form>
     <div id="outputs">
       <div id="template" class="panel panel-info dish-panel" style="display: none;">
