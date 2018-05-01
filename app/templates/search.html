@@ -106,7 +106,7 @@
       {% if data %}
         <div id="alert-show" class="alert alert-info" role="alert" style="display: none;">Show more results</div>
         <div id="alert-end" class="alert alert-danger" role="alert" style="display: none;">End of results</div>
-        <script> showResults($("#template"), {{data|tojson}}, 5); </script>
+        <script> showResults($("#template"), {{data[:200]|tojson}}, 5); </script>
       {% endif %}
     </div>
     <footer>
