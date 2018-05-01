@@ -563,6 +563,8 @@ flav_mat = np.zeros((len(raw), 5))
 flav_norms = np.zeros(len(raw))
 ingr_mat = np.zeros((len(raw), len(all_ingrs)))
 
+
+#### the ml components are no longer called, but have been used to precompute matrices
 #ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
 topic_profs = np.load('topic_profs.npy')
 #topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
@@ -576,26 +578,48 @@ def ingr_to_topic_prof(ingr, model_components, topic_profs):
 #makes the matrices flav_mat (recipe x flavor matrix that has the flavor profiles for each recipe)
 # flav_norms (vector with the norms of each row of the flav_mat)
 # ingr_mat (recipe x ingredient matrix that has 1 if the recipe contains that ingredient)
-for i in range(len(raw)):
-	flav_prof = np.array([0,0,0,0,0])
-	for j in range(len(raw[i]['extendedIngredients'])):
-		ingr = raw[i]['extendedIngredients'][j]
-		amount = ingr['amount']
-		unit = ingr['unit'] #need to map them to proportional weights later (e.g. 1 lb = 16 oz)
-		name = ingr['name']
-		if name in annotatedDict:
-			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
-			flav_prof = np.add(flav_prof, (amount*unit_weights(unit))*np.array(flav_lst))
-		else:
-			###call ml_model and get topic-estimated flavor prof
-			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
-		ingr_mat[i,ingr_inv_index[name]] = 1
-	if np.max(flav_prof) == 0:
-		flav_prof = np.array([1,1,1,1,1])
-	flav_mat[i,:] = 10*((1.0*flav_prof)/np.max(flav_prof))
-	flav_norms[i] = np.linalg.norm(flav_mat[i])
 
+#for i in range(len(raw)):
+#	flav_prof = np.array([0,0,0,0,0])
+#	for j in range(len(raw[i]['extendedIngredients'])):
+#		ingr = raw[i]['extendedIngredients'][j]
+#		amount = ingr['amount']
+#		unit = ingr['unit'] #need to map them to proportional weights later (e.g. 1 lb = 16 oz)
+#		name = ingr['name']
+#		if name in annotatedDict:
+#			flav_lst = [annotatedDict[name]['sweet'], annotatedDict[name]['salty'],annotatedDict[name]['sour'], annotatedDict[name]['bitter'], annotatedDict[name]['umami']]
+#			flav_prof = np.add(flav_prof, (amount*unit_weights(unit))*np.array(flav_lst))
+#		else:
+#			###call ml_model and get topic-estimated flavor prof
+#			flav_prof = np.add(flav_prof, ingr_to_topic_prof(name, model_components, topic_profs))
+#		ingr_mat[i,ingr_inv_index[name]] = 1
+#	if np.max(flav_prof) == 0:
+#		flav_prof = np.array([1,1,1,1,1])
+#	flav_mat[i,:] = 10*((1.0*flav_prof)/np.max(flav_prof))
+#	flav_norms[i] = np.linalg.norm(flav_mat[i])
 
+flav_mat = np.load('flav_mat.npy')
+flav_norms = np.load('flav_norms.npy')
+restriction_strs = {"alcohol" : np.load('alcohol.npy'),
+					"beef" : np.load('beef.npy'),
+					"dairy" : np.load('dairy.npy'),
+					"egg" : np.load('egg.npy'),
+					"fish" : np.load('fish.npy'),
+					"gluten" : np.load('gluten.npy'),
+					"halal" : np.load('halal.npy'),
+					"ketogenic": np.load('ketogenic.npy'),
+					"kosher": np.load('kosher.npy'),
+					"lactoovo": np.load('lactoovo.npy'),
+					"pork": np.load('pork.npy'),
+					"peanut": np.load('peanut.npy'),
+					"pescatarian": np.load('pescatarian.npy'),
+					"sesame": np.load('sesame.npy'),
+					"shellfish": np.load('shellfish.npy'),
+					"soy": np.load('soy.npy'),
+					"treenuts": np.load('treenuts.npy'),
+					"vegan": np.load('vegan.npy'),
+					"vegetarian": np.load('vegetarian.npy'),
+					"wheat": np.load('wheat.npy')}
 #######
 
 @irsystem.route('/', methods=['GET'])
@@ -724,7 +748,7 @@ def exclude_recipe (ingredients_tuples):
 #return flavor matrix that has 0's for recipes that exclude or 1's if include the query ingredient
 def filter_clude_ingr(query, restrictions):
 	filtered_flav_mat = np.copy(flav_mat)
-	filter_vec = np.multiply(exclude_recipe(query), exclude_recipe_restriction(restrictions))
+	filter_vec = np.multiply(exclude_recipe(query), exclude_recipe_restriction_prec(restrictions))
 	filtered_flav_mat = filter_vec*filtered_flav_mat
 	return filtered_flav_mat
 
@@ -735,6 +759,14 @@ def add_rating(dish):
 	return dish
 
 
+def exclude_recipe_restriction_prec(restrictions):
+	filter_vec = np.ones((len(raw), 1))
+	for res_str in restrictions:
+		filter_vec = np.multiply(filter_vec, restriction_strs[res_str])
+	return filter_vec
+
+
+##all the functions and sets below are no longer called, since we saved them as precomputed matrices
 #####################################################################################################################
 #Helpers for labels that are pre built in
 
@@ -760,6 +792,8 @@ def isPescatarian(dish):
 
 #Major Food Groups
 # NOTE: that these labels should only be included for excluding recipes. Obviously, you won't find a recipe that uses all dairy products.
+
+
 
 dairy = set(['milk', 'butter', 'cheese', 'cream', 'curds', 'custard', 'half-and-half', 'pudding', 'sour cream',
              'condensed milk', 'yogurt', 'milk chocolate', 'margarine', 'nougat'])
