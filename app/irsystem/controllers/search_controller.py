@@ -564,7 +564,7 @@ flav_norms = np.zeros(len(raw))
 ingr_mat = np.zeros((len(raw), len(all_ingrs)))
 
 
-#### the ml components are no longer called, but have been used to precompute matrices
+#### the ml components are no longer called, but have been used to precompute matrices:
 #ml -- getting flavor profiles for each of the topics we get by topic-modelling the ingredients
 topic_profs = np.load('topic_profs.npy')
 #topic_profs = [ml_model.flavors_to_topics(i, ml_model.model, ml_model.feature_names) for i in range(ml_model.n_topic)]
